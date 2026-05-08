@@ -1,0 +1,58 @@
+<div class="login-wrapper">
+
+  <div class="login-card mat-elevation-z4">
+    <div class="login-header">
+      <span class="login-icon">🎣</span>
+      <h1>Panel de Jueces</h1>
+      <p>Concurso de Pesca 2025</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Usuario</mat-label>
+        <input matInput formControlName="username" autocomplete="username" />
+        <mat-icon matSuffix>person</mat-icon>
+        <mat-error *ngIf="loginForm.get('username')?.hasError('required')">
+          El usuario es obligatorio
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Contraseña</mat-label>
+        <input matInput
+               formControlName="password"
+               [type]="hidePassword ? 'password' : 'text'"
+               autocomplete="current-password" />
+        <button mat-icon-button matSuffix type="button"
+                (click)="hidePassword = !hidePassword">
+          <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+        </button>
+        <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
+          La contraseña es obligatoria
+        </mat-error>
+      </mat-form-field>
+
+      <!-- Error global -->
+      <mat-error *ngIf="error" class="global-error">
+        <mat-icon>error_outline</mat-icon> {{ error }}
+      </mat-error>
+
+      <div class="form-actions">
+        <button mat-stroked-button type="button" (click)="goBack()">
+          <mat-icon>arrow_back</mat-icon> Volver
+        </button>
+        <button mat-raised-button color="primary" type="submit"
+                [disabled]="loginForm.invalid">
+          <mat-icon>login</mat-icon> Entrar
+        </button>
+      </div>
+
+      <div class="demo-hint">
+        <mat-icon>info</mat-icon>
+        Credenciales demo: <code>admin</code> / <code>admin</code>
+      </div>
+    </form>
+  </div>
+
+</div>
