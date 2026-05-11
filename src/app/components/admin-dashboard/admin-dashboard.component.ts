@@ -17,15 +17,14 @@ export class AdminDashboardComponent implements OnInit {
   participantForm!: FormGroup;
   fishForms: { [id: number]: FormGroup } = {};
 
-  // Columnas de la tabla de clasificación admin
   displayedColumns: string[] = [
     'pos', 'names', 'pesquil',
     'p1', 'p2', 'p3', 'p4', 'p5',
     'totalWeight', 'actions'
   ];
 
-  // ID del participante con el panel de añadir pez abierto
   activeParticipantId: number | null = null;
+  loading = false;
 
   constructor(
     private tournament: TournamentService,
@@ -39,44 +38,38 @@ export class AdminDashboardComponent implements OnInit {
     this.participants$ = this.tournament.participants$;
 
     this.participantForm = this.fb.group({
-      names: ['', [Validators.required, Validators.minLength(3)]],
+      names:   ['', [Validators.required, Validators.minLength(3)]],
       pesquil: [null, [Validators.required, Validators.min(1), Validators.max(999)]]
     });
   }
 
-  // ─── Participantes ────────────────────────────────────
-
-  addParticipant(): void {
+  async addParticipant(): Promise<void> {
     if (this.participantForm.invalid) return;
-
+    this.loading = true;
     const { names, pesquil } = this.participantForm.value;
-
     try {
-      this.tournament.addParticipant(names, pesquil);
-      this.snack.open(`✅ Participante "${names.toUpperCase()}" añadido.`, 'OK', { duration: 3000 });
+      await this.tournament.addParticipant(names, pesquil);
+      this.snack.open(`✅ "${names.toUpperCase()}" añadido.`, 'OK', { duration: 3000 });
       this.participantForm.reset();
     } catch (e: any) {
       this.snack.open(`❌ ${e.message}`, 'OK', { duration: 4000 });
+    } finally {
+      this.loading = false;
     }
   }
 
-  removeParticipant(id: number, names: string): void {
-    this.tournament.removeParticipant(id);
-    this.snack.open(`Participante "${names}" eliminado.`, 'OK', { duration: 2500 });
-    if (this.activeParticipantId === id) {
-      this.activeParticipantId = null;
+  async removeParticipant(id: number, names: string): Promise<void> {
+    try {
+      await this.tournament.removeParticipant(id);
+      this.snack.open(`"${names}" eliminado.`, 'OK', { duration: 2500 });
+      if (this.activeParticipantId === id) this.activeParticipantId = null;
+    } catch (e: any) {
+      this.snack.open(`❌ ${e.message}`, 'OK', { duration: 3000 });
     }
   }
-
-  // ─── Peces ────────────────────────────────────────────
 
   toggleFishPanel(id: number): void {
-    if (this.activeParticipantId === id) {
-      this.activeParticipantId = null;
-      return;
-    }
-    this.activeParticipantId = id;
-    // Inicializar formulario para este participante si no existe
+    this.activeParticipantId = this.activeParticipantId === id ? null : id;
     if (!this.fishForms[id]) {
       this.fishForms[id] = this.fb.group({
         weight: [null, [Validators.required, Validators.min(0.01), Validators.max(99)]]
@@ -93,25 +86,25 @@ export class AdminDashboardComponent implements OnInit {
     return this.fishForms[id];
   }
 
-  submitFish(participantId: number): void {
+  async submitFish(participantId: number): Promise<void> {
     const form = this.getFishForm(participantId);
     if (form.invalid) return;
-
-    const weight = parseFloat(form.value.weight);
-    const result = this.tournament.addFish(participantId, weight);
-
-    this.snack.open(result.message, 'OK', {
-      duration: 4000,
-      panelClass: result.success ? 'snack-success' : 'snack-warn'
-    });
-
-    if (result.success) {
-      form.reset();
-      this.activeParticipantId = null;
+    this.loading = true;
+    try {
+      const weight = parseFloat(form.value.weight);
+      const result = await this.tournament.addFish(participantId, weight);
+      this.snack.open(result.message, 'OK', {
+        duration: 4000,
+        panelClass: result.success ? 'snack-success' : 'snack-warn'
+      });
+      if (result.success) {
+        form.reset();
+        this.activeParticipantId = null;
+      }
+    } finally {
+      this.loading = false;
     }
   }
-
-  // ─── Helpers ─────────────────────────────────────────
 
   getFish(fishes: number[], idx: number): string {
     return fishes[idx] !== undefined ? fishes[idx].toFixed(2) + ' kg' : '—';
@@ -124,7 +117,5 @@ export class AdminDashboardComponent implements OnInit {
     return `${pos + 1}º`;
   }
 
-  logout(): void {
-    this.auth.logout();
-  }
+  logout(): void { this.auth.logout(); }
 }

@@ -1,13 +1,14 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { SupabaseService } from './supabase.service';
 
 export interface Participant {
   id: number;
   names: string;
   pesquil: number;
   fishes: number[];
-  totalWeight: number;
+  total_weight: number;
 }
 
 export interface FishResult {
@@ -17,101 +18,138 @@ export interface FishResult {
 
 @Injectable({ providedIn: 'root' })
 export class TournamentService {
-  private nextId = 1;
   private participantsSubject = new BehaviorSubject<Participant[]>([]);
+  private supabase;
 
-  // Observable público con la clasificación ordenada de mayor a menor peso
-  readonly leaderboard$: Observable<Participant[]> = this.participantsSubject.pipe(
-    map(list => [...list].sort((a, b) => b.totalWeight - a.totalWeight))
-  );
+  // Clasificación ordenada de mayor a menor peso total
+  readonly leaderboard$: Observable<Participant[]> =
+    this.participantsSubject.pipe(
+      map(list => [...list].sort((a, b) => b.total_weight - a.total_weight))
+    );
 
-  // Observable con la lista sin ordenar (para el panel de admin)
-  readonly participants$: Observable<Participant[]> = this.participantsSubject.asObservable();
+  readonly participants$: Observable<Participant[]> =
+    this.participantsSubject.asObservable();
 
-  addParticipant(names: string, pesquil: number): void {
+  constructor(private sb: SupabaseService, private zone: NgZone) {
+    this.supabase = sb.client;
+    this.loadAll();
+    this.subscribeRealtime();
+  }
+
+  // ─── Carga inicial ────────────────────────────────────
+
+  private async loadAll(): Promise<void> {
+    const { data, error } = await this.supabase
+      .from('participants')
+      .select('*')
+      .order('total_weight', { ascending: false });
+
+    if (error) { console.error('Error cargando participantes:', error); return; }
+    this.zone.run(() => this.participantsSubject.next(data ?? []));
+  }
+
+  // ─── Realtime: escucha cambios en la tabla ────────────
+  // Cualquier INSERT / UPDATE / DELETE en Supabase se refleja
+  // automáticamente en todos los navegadores conectados.
+
+  private subscribeRealtime(): void {
+    this.supabase
+      .channel('participants-changes')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'participants' },
+        () => {
+          // Recargamos la lista completa tras cualquier cambio
+          this.loadAll();
+        }
+      )
+      .subscribe();
+  }
+
+  // ─── Añadir participante ──────────────────────────────
+
+  async addParticipant(names: string, pesquil: number): Promise<void> {
+    // Verificar pesquil duplicado
     const current = this.participantsSubject.getValue();
-
-    // Verificar que el pesquil no esté repetido
     if (current.some(p => p.pesquil === pesquil)) {
       throw new Error(`El pesquil número ${pesquil} ya está asignado.`);
     }
 
-    const newParticipant: Participant = {
-      id: this.nextId++,
-      names: names.toUpperCase().trim(),
-      pesquil,
-      fishes: [],
-      totalWeight: 0
-    };
+    const { error } = await this.supabase
+      .from('participants')
+      .insert({
+        names: names.toUpperCase().trim(),
+        pesquil,
+        fishes: [],
+        total_weight: 0
+      });
 
-    this.participantsSubject.next([...current, newParticipant]);
+    if (error) throw new Error(error.message);
   }
 
-  removeParticipant(id: number): void {
-    const updated = this.participantsSubject.getValue().filter(p => p.id !== id);
-    this.participantsSubject.next(updated);
+  // ─── Eliminar participante ────────────────────────────
+
+  async removeParticipant(id: number): Promise<void> {
+    const { error } = await this.supabase
+      .from('participants')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw new Error(error.message);
   }
 
-  /**
-   * Lógica de negocio principal: regla de los 5 peces.
-   *
-   * - Si el participante tiene < 5 peces: añade el nuevo peso directamente.
-   * - Si tiene 5 peces (cupo lleno):
-   *     · Si el nuevo pez pesa MÁS que el mínimo actual → sustituye el mínimo.
-   *     · Si el nuevo pez pesa IGUAL o MENOS que el mínimo → descarta y avisa.
-   *
-   * Tras cualquier cambio recalcula totalWeight automáticamente.
-   */
-  addFish(participantId: number, weight: number): FishResult {
+  // ─── Añadir pez (regla de los 5 peces) ───────────────
+
+  async addFish(participantId: number, weight: number): Promise<FishResult> {
     const list = this.participantsSubject.getValue();
-    const idx = list.findIndex(p => p.id === participantId);
+    const participant = list.find(p => p.id === participantId);
 
-    if (idx === -1) {
+    if (!participant) {
       return { success: false, message: 'Participante no encontrado.' };
     }
 
-    // Clonamos para no mutar el estado directamente
-    const p: Participant = { ...list[idx], fishes: [...list[idx].fishes] };
+    const fishes = [...participant.fishes];
     let result: FishResult;
 
-    if (p.fishes.length < 5) {
-      // Caso 1: hay hueco libre
-      p.fishes.push(weight);
-      p.totalWeight = this.calcTotal(p.fishes);
+    if (fishes.length < 5) {
+      // Caso 1: hueco libre → añadir directamente
+      fishes.push(weight);
       result = {
         success: true,
-        message: `✅ Pez de ${weight.toFixed(2)} kg añadido. (${p.fishes.length}/5 peces)`
+        message: `✅ Pez de ${weight.toFixed(2)} kg añadido. (${fishes.length}/5 peces)`
       };
+
     } else {
-      // Caso 2: cupo lleno — aplicar regla de sustitución
-      const minWeight = Math.min(...p.fishes);
+      // Caso 2: cupo lleno → aplicar regla de sustitución
+      const minWeight = Math.min(...fishes);
 
       if (weight > minWeight) {
-        const minIdx = p.fishes.indexOf(minWeight);
-        p.fishes[minIdx] = weight;
-        p.totalWeight = this.calcTotal(p.fishes);
+        const minIdx = fishes.indexOf(minWeight);
+        fishes[minIdx] = weight;
         result = {
           success: true,
-          message: `🔄 Sustitución: ${minWeight.toFixed(2)} kg reemplazado por ${weight.toFixed(2)} kg.`
+          message: `🔄 Sustitución: ${minWeight.toFixed(2)} kg → ${weight.toFixed(2)} kg.`
         };
       } else {
-        result = {
+        return {
           success: false,
-          message: `⚠️ El pez (${weight.toFixed(2)} kg) no mejora el pesaje. Mínimo actual: ${minWeight.toFixed(2)} kg.`
+          message: `⚠️ No mejora. Mínimo actual: ${minWeight.toFixed(2)} kg.`
         };
       }
     }
 
-    if (result.success) {
-      const updated = [...list];
-      updated[idx] = p;
-      this.participantsSubject.next(updated);
-    }
+    // Persistir en Supabase solo si hubo cambio
+    const total_weight = parseFloat(
+      fishes.reduce((s, f) => s + f, 0).toFixed(2)
+    );
+
+    const { error } = await this.supabase
+      .from('participants')
+      .update({ fishes, total_weight })
+      .eq('id', participantId);
+
+    if (error) return { success: false, message: `Error al guardar: ${error.message}` };
 
     return result;
-  }
-
-  private calcTotal(fishes: number[]): number {
-    return parseFloat(fishes.reduce((sum, f) => sum + f, 0).toFixed(2));
   }
 }
