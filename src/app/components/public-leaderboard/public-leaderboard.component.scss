@@ -12,14 +12,12 @@
   padding: 0 24px; 
   height: 72px;
 
-  // 1. Espacio izquierdo (equilibra la balanza en PC)
   .left-placeholder {
     flex: 1;
     display: flex;
     justify-content: flex-start;
   }
 
-  // 2. Logo y Título en el centro absoluto
   .center-brand {
     flex: 1;
     display: flex;
@@ -49,11 +47,10 @@
       font-weight: 700; 
       letter-spacing: 0.5px;
       text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-      white-space: nowrap; // Evita que el texto salte de línea
+      white-space: nowrap; 
     }
   }
 
-  // 3. Botón a la derecha
   .right-actions {
     flex: 1;
     display: flex;
@@ -91,56 +88,51 @@
 @media (max-width: 768px) {
   .app-toolbar {
     padding: 0 16px;
-    height: 64px; // Un poco más estrecho en móvil
+    height: 64px; 
 
     .left-placeholder {
-      display: none; // En móvil quitamos el contrapeso, no hace falta
+      display: none; 
     }
 
     .center-brand {
       flex: 1;
-      justify-content: flex-start; // Alineamos logo y título a la izquierda
+      justify-content: flex-start; 
       gap: 10px;
 
       .toolbar-icon img {
-        height: 36px; // Logo más pequeño
+        height: 36px; 
       }
 
       .toolbar-title { 
-        font-size: 17px; // Texto más pequeño
+        font-size: 17px; 
       }
     }
 
     .right-actions {
-      flex: 0 0 auto; // El contenedor derecho solo ocupa el espacio de su botón
+      flex: 0 0 auto; 
       
       .login-btn {
-        padding: 0; // Quitamos el padding horizontal
-        width: 40px; // Lo hacemos un círculo perfecto
+        padding: 0; 
+        width: 40px; 
         height: 40px;
         min-width: unset;
 
         mat-icon {
-          margin-right: 0; // Quitamos el margen del icono
+          margin-right: 0; 
           font-size: 20px;
         }
 
         .btn-text {
-          display: none; // Ocultamos el texto "Acceso jueces"
+          display: none; 
         }
       }
     }
   }
 }
 
-// Para móviles extremadamente estrechos
 @media (max-width: 400px) {
-  .app-toolbar .center-brand .toolbar-title {
-    font-size: 14px;
-  }
-  .app-toolbar .center-brand .toolbar-icon img {
-    height: 32px;
-  }
+  .app-toolbar .center-brand .toolbar-title { font-size: 14px; }
+  .app-toolbar .center-brand .toolbar-icon img { height: 32px; }
 }
 
 // ─── CONTENIDO DE LA PÁGINA ─────────────────────────────
@@ -260,9 +252,15 @@
   font-weight: 600;
 }
 
+// Estilos de los peces (Ajustado para soportar los colores de fondo)
 .fish-weight {
-  color: #1b5e20;
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: inline-block;
+  min-width: 50px;
+  text-align: center;
 }
 
 .fish-empty {
@@ -283,4 +281,40 @@
   .empty-icon { font-size: 48px; display: block; margin-bottom: 12px; }
   p { font-size: 16px; margin: 0 0 4px; }
   small { font-size: 13px; }
+}
+
+// ─── NUEVA LEYENDA RESPONSIVE ───────────────────────────
+
+.legend-card {
+  margin-top: 24px;
+  border-radius: 12px;
+  background-color: white;
+  
+  h3 {
+    margin: 0 0 16px;
+    font-size: 16px;
+    color: #1a237e;
+    font-weight: 600;
+    text-align: center;
+  }
+}
+
+.legend-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap; // ¡Esta es la clave para que se adapte en móvil!
+  gap: 8px;
+  justify-content: center;
+
+  li {
+    padding: 6px 12px;
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: 6px;
+    border: 1px solid rgba(0,0,0,0.1);
+    text-transform: uppercase;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  }
 }

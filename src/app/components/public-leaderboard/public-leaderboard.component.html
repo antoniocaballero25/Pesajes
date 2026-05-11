@@ -1,26 +1,23 @@
 <div class="page-wrapper">
 
-<mat-toolbar color="primary" class="app-toolbar mat-elevation-z4">
+  <mat-toolbar color="primary" class="app-toolbar mat-elevation-z4">
+    <div class="left-placeholder"></div>
   
-  <div class="left-placeholder"></div>
-
-  <div class="center-brand">
-    <span class="toolbar-icon">
-      <img src="assets/Logo.png" alt="Logo">
-    </span>
-    <span class="toolbar-title">IV OPEN ORONCARP GARCÍA SOLA</span>
-  </div>
-
-  <div class="right-actions">
-    <button mat-button routerLink="/login" class="login-btn">
-      <mat-icon>lock</mat-icon>
-      <span class="btn-text">Acceso jueces</span>
-    </button>
-  </div>
-
-</mat-toolbar>
-
-  <!-- MAIN CONTENT -->
+    <div class="center-brand">
+      <span class="toolbar-icon">
+        <img src="assets/Logo.png" alt="Logo">
+      </span>
+      <span class="toolbar-title">IV OPEN ORONCARP GARCÍA SOLA</span>
+    </div>
+  
+    <div class="right-actions">
+      <button mat-button routerLink="/login" class="login-btn">
+        <mat-icon>lock</mat-icon>
+        <span class="btn-text">Acceso jueces</span>
+      </button>
+    </div>
+  </mat-toolbar>
+  
   <div class="content">
     <div class="section-header">
       <h1 class="section-title">Clasificación general</h1>
@@ -34,104 +31,124 @@
 
     <mat-card class="table-card mat-elevation-z2">
       <mat-card-content>
-
-        <!-- TABLA -->
         <div class="table-container">
           <table mat-table [dataSource]="(leaderboard$ | async) ?? []" class="leaderboard-table">
-
-            <!-- Posición -->
+  
             <ng-container matColumnDef="pos">
               <th mat-header-cell *matHeaderCellDef class="col-pos">Pos.</th>
               <td mat-cell *matCellDef="let row; let i = index" class="col-pos">
                 <span class="medal">{{ getMedal(i) }}</span>
               </td>
             </ng-container>
-
-            <!-- Nombres -->
+  
             <ng-container matColumnDef="names">
               <th mat-header-cell *matHeaderCellDef>Participantes</th>
               <td mat-cell *matCellDef="let row" class="names-cell">
                 <strong>{{ row.names }}</strong>
               </td>
             </ng-container>
-
-            <!-- Pesquil -->
+  
             <ng-container matColumnDef="pesquil">
               <th mat-header-cell *matHeaderCellDef class="col-center">Pesquil</th>
               <td mat-cell *matCellDef="let row" class="col-center">
                 <span class="pesquil-badge">{{ row.pesquil }}</span>
               </td>
             </ng-container>
-
-            <!-- Peces 1-5 -->
+  
             <ng-container matColumnDef="p1">
               <th mat-header-cell *matHeaderCellDef class="col-fish">Pez 1</th>
               <td mat-cell *matCellDef="let row" class="col-fish">
-                <span [class]="row.fishes[0] ? 'fish-weight' : 'fish-empty'">
+                <span [class]="row.fishes[0] ? 'fish-weight' : 'fish-empty'"
+                      [style.backgroundColor]="row.fishes[0] ? getAwardBg(row.awards?.[0]) : ''"
+                      [style.color]="row.fishes[0] ? getAwardColor(row.awards?.[0]) : ''">
                   {{ getFish(row.fishes, 0) }}
                 </span>
               </td>
             </ng-container>
-
+  
             <ng-container matColumnDef="p2">
               <th mat-header-cell *matHeaderCellDef class="col-fish">Pez 2</th>
               <td mat-cell *matCellDef="let row" class="col-fish">
-                <span [class]="row.fishes[1] ? 'fish-weight' : 'fish-empty'">
+                <span [class]="row.fishes[1] ? 'fish-weight' : 'fish-empty'"
+                      [style.backgroundColor]="row.fishes[1] ? getAwardBg(row.awards?.[1]) : ''"
+                      [style.color]="row.fishes[1] ? getAwardColor(row.awards?.[1]) : ''">
                   {{ getFish(row.fishes, 1) }}
                 </span>
               </td>
             </ng-container>
-
+  
             <ng-container matColumnDef="p3">
               <th mat-header-cell *matHeaderCellDef class="col-fish">Pez 3</th>
               <td mat-cell *matCellDef="let row" class="col-fish">
-                <span [class]="row.fishes[2] ? 'fish-weight' : 'fish-empty'">
+                <span [class]="row.fishes[2] ? 'fish-weight' : 'fish-empty'"
+                      [style.backgroundColor]="row.fishes[2] ? getAwardBg(row.awards?.[2]) : ''"
+                      [style.color]="row.fishes[2] ? getAwardColor(row.awards?.[2]) : ''">
                   {{ getFish(row.fishes, 2) }}
                 </span>
               </td>
             </ng-container>
-
+  
             <ng-container matColumnDef="p4">
               <th mat-header-cell *matHeaderCellDef class="col-fish">Pez 4</th>
               <td mat-cell *matCellDef="let row" class="col-fish">
-                <span [class]="row.fishes[3] ? 'fish-weight' : 'fish-empty'">
+                <span [class]="row.fishes[3] ? 'fish-weight' : 'fish-empty'"
+                      [style.backgroundColor]="row.fishes[3] ? getAwardBg(row.awards?.[3]) : ''"
+                      [style.color]="row.fishes[3] ? getAwardColor(row.awards?.[3]) : ''">
                   {{ getFish(row.fishes, 3) }}
                 </span>
               </td>
             </ng-container>
-
+  
             <ng-container matColumnDef="p5">
               <th mat-header-cell *matHeaderCellDef class="col-fish">Pez 5</th>
               <td mat-cell *matCellDef="let row" class="col-fish">
-                <span [class]="row.fishes[4] ? 'fish-weight' : 'fish-empty'">
+                <span [class]="row.fishes[4] ? 'fish-weight' : 'fish-empty'"
+                      [style.backgroundColor]="row.fishes[4] ? getAwardBg(row.awards?.[4]) : ''"
+                      [style.color]="row.fishes[4] ? getAwardColor(row.awards?.[4]) : ''">
                   {{ getFish(row.fishes, 4) }}
                 </span>
               </td>
             </ng-container>
-
-            <!-- Total -->
+  
             <ng-container matColumnDef="totalWeight">
               <th mat-header-cell *matHeaderCellDef class="col-total">Total</th>
               <td mat-cell *matCellDef="let row" class="col-total">
                 <span class="total-weight">{{ row.total_weight.toFixed(2) }} kg</span>
               </td>
             </ng-container>
-
+  
             <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"
               [class.top-row]="(leaderboard$ | async)?.[0]?.id === row.id"></tr>
           </table>
         </div>
-
-        <!-- ESTADO VACÍO -->
+  
         <div *ngIf="((leaderboard$ | async)?.length ?? 0) === 0" class="empty-state">
           <span class="empty-icon">🎣</span>
           <p>Aún no hay participantes registrados.</p>
           <small>El concurso comenzará pronto.</small>
         </div>
-
       </mat-card-content>
     </mat-card>
-  </div>
 
+    <mat-card class="legend-card mat-elevation-z2">
+      <mat-card-content>
+        <h3>Leyenda de Premios</h3>
+        <ul class="legend-list">
+          <li style="background-color: #e6b8b7; color: #000;">2º PEZ MAYOR DOMINGO MAÑANA</li>
+          <li style="background-color: #95b3d7; color: #000;">2º PEZ MAYOR SABADO MAÑANA</li>
+          <li style="background-color: #ffc000; color: #000;">2º PEZ MAYOR SABADO TARDE</li>
+          <li style="background-color: #ffff00; color: #000;">2º PEZ MAYOR VIERNES TARDE</li>
+          <li style="background-color: #00ff00; color: #000;">BARBO MAYOR</li>
+          <li style="background-color: #ff0000; color: #fff;">CARPA MAYOR</li>
+          <li style="background-color: #205867; color: #fff;">PEZ MAYOR DOMINGO MAÑANA</li>
+          <li style="background-color: #38761d; color: #fff;">PEZ MAYOR SABADO MAÑANA</li>
+          <li style="background-color: #e26b0a; color: #fff;">PEZ MAYOR SABADO TARDE</li>
+          <li style="background-color: #7030a0; color: #fff;">PEZ MAYOR VIERNES TARDE</li>
+          <li style="background-color: #00ffff; color: #000;">PRIMER CUPO</li>
+        </ul>
+      </mat-card-content>
+    </mat-card>
+
+  </div>
 </div>
