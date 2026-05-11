@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ReactiveFormsModule } from '@angular/forms';
+import { MatSelectModule } from '@angular/material/select';
 
 // Angular Material
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -39,6 +40,7 @@ import { MinPipe } from './pipes/min.pipe';
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    MatSelectModule,
     ReactiveFormsModule,
     AppRoutingModule,
     // Material
