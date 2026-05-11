@@ -21,7 +21,6 @@ export class TournamentService {
   private participantsSubject = new BehaviorSubject<Participant[]>([]);
   private supabase;
 
-  // Clasificación ordenada de mayor a menor peso total
   readonly leaderboard$: Observable<Participant[]> =
     this.participantsSubject.pipe(
       map(list => [...list].sort((a, b) => b.total_weight - a.total_weight))
@@ -49,8 +48,6 @@ export class TournamentService {
   }
 
   // ─── Realtime: escucha cambios en la tabla ────────────
-  // Cualquier INSERT / UPDATE / DELETE en Supabase se refleja
-  // automáticamente en todos los navegadores conectados.
 
   private subscribeRealtime(): void {
     this.supabase
@@ -58,10 +55,7 @@ export class TournamentService {
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'participants' },
-        () => {
-          // Recargamos la lista completa tras cualquier cambio
-          this.loadAll();
-        }
+        () => this.loadAll()
       )
       .subscribe();
   }
@@ -69,7 +63,6 @@ export class TournamentService {
   // ─── Añadir participante ──────────────────────────────
 
   async addParticipant(names: string, pesquil: number): Promise<void> {
-    // Verificar pesquil duplicado
     const current = this.participantsSubject.getValue();
     if (current.some(p => p.pesquil === pesquil)) {
       throw new Error(`El pesquil número ${pesquil} ya está asignado.`);
@@ -112,17 +105,13 @@ export class TournamentService {
     let result: FishResult;
 
     if (fishes.length < 5) {
-      // Caso 1: hueco libre → añadir directamente
       fishes.push(weight);
       result = {
         success: true,
         message: `✅ Pez de ${weight.toFixed(2)} kg añadido. (${fishes.length}/5 peces)`
       };
-
     } else {
-      // Caso 2: cupo lleno → aplicar regla de sustitución
       const minWeight = Math.min(...fishes);
-
       if (weight > minWeight) {
         const minIdx = fishes.indexOf(minWeight);
         fishes[minIdx] = weight;
@@ -138,10 +127,37 @@ export class TournamentService {
       }
     }
 
-    // Persistir en Supabase solo si hubo cambio
-    const total_weight = parseFloat(
-      fishes.reduce((s, f) => s + f, 0).toFixed(2)
-    );
+    const total_weight = parseFloat(fishes.reduce((s, f) => s + f, 0).toFixed(2));
+    const { error } = await this.supabase
+      .from('participants')
+      .update({ fishes, total_weight })
+      .eq('id', participantId);
+
+    if (error) return { success: false, message: `Error al guardar: ${error.message}` };
+    return result;
+  }
+
+  // ─── Editar peso de un pez concreto ──────────────────
+  // Permite corregir un peso mal introducido sin borrar la pareja.
+  // fishIndex: posición en el array fishes (0, 1, 2, 3 ó 4)
+
+  async editFish(participantId: number, fishIndex: number, newWeight: number): Promise<FishResult> {
+    const list = this.participantsSubject.getValue();
+    const participant = list.find(p => p.id === participantId);
+
+    if (!participant) {
+      return { success: false, message: 'Participante no encontrado.' };
+    }
+
+    if (fishIndex < 0 || fishIndex >= participant.fishes.length) {
+      return { success: false, message: 'Índice de pez no válido.' };
+    }
+
+    const oldWeight = participant.fishes[fishIndex];
+    const fishes = [...participant.fishes];
+    fishes[fishIndex] = newWeight;
+
+    const total_weight = parseFloat(fishes.reduce((s, f) => s + f, 0).toFixed(2));
 
     const { error } = await this.supabase
       .from('participants')
@@ -150,6 +166,36 @@ export class TournamentService {
 
     if (error) return { success: false, message: `Error al guardar: ${error.message}` };
 
-    return result;
+    return {
+      success: true,
+      message: `✏️ Pez ${fishIndex + 1} corregido: ${oldWeight.toFixed(2)} kg → ${newWeight.toFixed(2)} kg.`
+    };
+  }
+
+  // ─── Eliminar un pez concreto ─────────────────────────
+
+  async deleteFish(participantId: number, fishIndex: number): Promise<FishResult> {
+    const list = this.participantsSubject.getValue();
+    const participant = list.find(p => p.id === participantId);
+
+    if (!participant) {
+      return { success: false, message: 'Participante no encontrado.' };
+    }
+
+    const removedWeight = participant.fishes[fishIndex];
+    const fishes = participant.fishes.filter((_, i) => i !== fishIndex);
+    const total_weight = parseFloat(fishes.reduce((s, f) => s + f, 0).toFixed(2));
+
+    const { error } = await this.supabase
+      .from('participants')
+      .update({ fishes, total_weight })
+      .eq('id', participantId);
+
+    if (error) return { success: false, message: `Error al guardar: ${error.message}` };
+
+    return {
+      success: true,
+      message: `🗑️ Pez de ${removedWeight.toFixed(2)} kg eliminado.`
+    };
   }
 }
