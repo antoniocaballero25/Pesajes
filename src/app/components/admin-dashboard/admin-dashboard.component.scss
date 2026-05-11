@@ -2,6 +2,25 @@
   min-height: 100vh;
   background: #f4f6f8;
 }
+/* Contenedor de la celda para alinear el texto y el icono */
+.fish-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Centra todo en la columna */
+  gap: 4px; /* Espacio entre los kilos y la papelera */
+}
+
+/* Estilo del botón de la papelera */
+.delete-fish-btn {
+  /* Forzamos a que sea visible por si algún otro estilo lo está ocultando */
+  display: inline-flex !important; 
+  opacity: 1 !important; 
+  
+  /* Hacemos el botón un poco más pequeño para que no descuadre la tabla */
+  transform: scale(0.8); 
+  width: 30px;
+  height: 30px;
+}
 
 .admin-toolbar {
   mat-icon { margin-right: 8px; }
