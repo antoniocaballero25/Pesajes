@@ -157,7 +157,7 @@
 .fish-cell {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 6px; /* Ajustado para que respiren el peso y la papelera */
 }
 
 .fish-weight {
@@ -187,25 +187,30 @@
 
 // Papelera roja siempre visible junto al peso de cada pez
 .delete-fish-btn {
-  width: 22px !important;
-  height: 22px !important;
-  line-height: 22px !important;
-  opacity: 1;
-  background: #ffebee !important;
+  display: inline-flex !important; /* Fuerza a que no se oculte */
+  align-items: center !important;
+  justify-content: center !important;
+  width: 24px !important; /* Un poco más grande para que el icono encaje perfecto */
+  height: 24px !important;
+  line-height: 24px !important;
+  opacity: 1 !important; /* Visible 100% siempre */
+  background: #ffebee !important; /* Fondo rosa claro */
   border-radius: 50% !important;
   transition: background 0.15s, transform 0.15s;
+  padding: 0 !important;
+  margin: 0 !important;
 
-  mat-icon {
-    font-size: 14px !important;
-    width: 14px !important;
-    height: 14px !important;
-    color: #e53935;
+  ::ng-deep mat-icon { /* Evita que Angular aísle el estilo del icono */
+    font-size: 15px !important;
+    width: 15px !important;
+    height: 15px !important;
+    color: #e53935 !important;
   }
 
   &:hover {
-    background: #e53935 !important;
-    transform: scale(1.15);
-    mat-icon { color: white; }
+    background: #e53935 !important; /* Se vuelve rojo intenso */
+    transform: scale(1.15); /* Crece un poquito */
+    ::ng-deep mat-icon { color: white !important; } /* El cubo se pone blanco */
   }
 }
 
