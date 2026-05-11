@@ -3,16 +3,16 @@
   background: #f4f6f8;
 }
 
-// ─── HEADER / TOOLBAR REDISEÑADO ────────────────────────
+// ─── HEADER / TOOLBAR REDISEÑADO Y RESPONSIVE ───────────
 
 .app-toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 24px; 
-  height: 72px; // Un poco más alto para que el logo respire
+  height: 72px;
 
-  // 1. Espacio izquierdo (equilibra la balanza de Flexbox)
+  // 1. Espacio izquierdo (equilibra la balanza en PC)
   .left-placeholder {
     flex: 1;
     display: flex;
@@ -25,21 +25,21 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 16px; // Espacio entre el logo y el texto
+    gap: 16px;
 
     .toolbar-icon {
       display: flex;
       align-items: center;
 
       img {
-        height: 48px; // Logo un poco más grande
+        height: 48px;
         width: auto;
         object-fit: contain;
-        filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.3)); // Sombra elegante para el logo
-        transition: transform 0.3s ease; // Animación suave
+        filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.3));
+        transition: transform 0.3s ease;
 
         &:hover {
-          transform: scale(1.08); // El logo crece un pelín al pasar el ratón
+          transform: scale(1.08);
         }
       }
     }
@@ -48,7 +48,8 @@
       font-size: 22px; 
       font-weight: 700; 
       letter-spacing: 0.5px;
-      text-shadow: 1px 1px 2px rgba(0,0,0,0.2); // Sombra en el texto para destacar
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+      white-space: nowrap; // Evita que el texto salte de línea
     }
   }
 
@@ -59,17 +60,20 @@
     justify-content: flex-end;
 
     .login-btn {
-      border-radius: 50px; // Botón estilo píldora
+      border-radius: 50px;
       padding: 0 20px;
-      background-color: rgba(255, 255, 255, 0.15); // Fondo semitransparente moderno
+      background-color: rgba(255, 255, 255, 0.15);
       border: 1px solid rgba(255, 255, 255, 0.3);
       transition: all 0.2s ease;
       font-weight: 500;
       letter-spacing: 0.3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
       &:hover {
         background-color: rgba(255, 255, 255, 0.25);
-        transform: translateY(-1px); // Sube un poquito al pasar el ratón
+        transform: translateY(-1px);
       }
 
       mat-icon { 
@@ -83,7 +87,63 @@
   }
 }
 
-// ─── CONTENIDO DE LA PÁGINA (Sin cambios) ───────────────
+// ─── MEDIA QUERIES (Magia Responsive) ───────────────────
+@media (max-width: 768px) {
+  .app-toolbar {
+    padding: 0 16px;
+    height: 64px; // Un poco más estrecho en móvil
+
+    .left-placeholder {
+      display: none; // En móvil quitamos el contrapeso, no hace falta
+    }
+
+    .center-brand {
+      flex: 1;
+      justify-content: flex-start; // Alineamos logo y título a la izquierda
+      gap: 10px;
+
+      .toolbar-icon img {
+        height: 36px; // Logo más pequeño
+      }
+
+      .toolbar-title { 
+        font-size: 17px; // Texto más pequeño
+      }
+    }
+
+    .right-actions {
+      flex: 0 0 auto; // El contenedor derecho solo ocupa el espacio de su botón
+      
+      .login-btn {
+        padding: 0; // Quitamos el padding horizontal
+        width: 40px; // Lo hacemos un círculo perfecto
+        height: 40px;
+        min-width: unset;
+
+        mat-icon {
+          margin-right: 0; // Quitamos el margen del icono
+          font-size: 20px;
+        }
+
+        .btn-text {
+          display: none; // Ocultamos el texto "Acceso jueces"
+        }
+      }
+    }
+  }
+}
+
+// Para móviles extremadamente estrechos
+@media (max-width: 400px) {
+  .app-toolbar .center-brand .toolbar-title {
+    font-size: 14px;
+  }
+  .app-toolbar .center-brand .toolbar-icon img {
+    height: 32px;
+  }
+}
+
+// ─── CONTENIDO DE LA PÁGINA ─────────────────────────────
 
 .content {
   max-width: 1100px;
