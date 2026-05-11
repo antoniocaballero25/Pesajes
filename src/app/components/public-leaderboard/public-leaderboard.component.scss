@@ -4,7 +4,18 @@
 }
 
 .app-toolbar {
-  .toolbar-icon { font-size: 22px; margin-right: 8px; }
+  .toolbar-icon { 
+    display: flex;
+    align-items: center;
+    margin-right: 12px; /* Un poco de separación del texto */
+
+    img {
+      height: 40px; /* Ajusta la altura para que encaje bien en la barra */
+      width: auto;  /* Mantiene la proporción de la imagen */
+      object-fit: contain;
+    }
+  }
+
   .toolbar-title { font-size: 18px; font-weight: 500; }
   .toolbar-spacer { flex: 1; }
   .login-btn mat-icon { margin-right: 4px; font-size: 18px; }
