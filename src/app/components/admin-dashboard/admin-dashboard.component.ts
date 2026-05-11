@@ -5,14 +5,29 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { TournamentService, Participant } from '../../services/tournament.service';
 import { AuthService } from '../../services/auth.service';
 
-// Modo del panel lateral: añadir nuevo pez o editar uno existente
 type PanelMode = 'add' | 'edit';
 
 interface EditTarget {
   participantId: number;
   fishIndex: number;
   currentWeight: number;
+  currentAward?: string;
 }
+
+export const AWARDS_CATALOG = [
+  { id: 'NONE', label: 'Sin premio', bg: 'transparent', color: '#2e7d32' },
+  { id: '2_DOM_MAN', label: '2º PEZ MAYOR DOMINGO MAÑANA', bg: '#e6b8b7', color: '#000' },
+  { id: '2_SAB_MAN', label: '2º PEZ MAYOR SABADO MAÑANA', bg: '#95b3d7', color: '#000' },
+  { id: '2_SAB_TAR', label: '2º PEZ MAYOR SABADO TARDE', bg: '#ffc000', color: '#000' },
+  { id: '2_VIE_TAR', label: '2º PEZ MAYOR VIERNES TARDE', bg: '#ffff00', color: '#000' },
+  { id: 'BARBO_MAYOR', label: 'BARBO MAYOR', bg: '#00ff00', color: '#000' },
+  { id: 'CARPA_MAYOR', label: 'CARPA MAYOR', bg: '#ff0000', color: '#fff' },
+  { id: '1_DOM_MAN', label: 'PEZ MAYOR DOMINGO MAÑANA', bg: '#205867', color: '#fff' },
+  { id: '1_SAB_MAN', label: 'PEZ MAYOR SABADO MAÑANA', bg: '#38761d', color: '#fff' },
+  { id: '1_SAB_TAR', label: 'PEZ MAYOR SABADO TARDE', bg: '#e26b0a', color: '#fff' },
+  { id: '1_VIE_TAR', label: 'PEZ MAYOR VIERNES TARDE', bg: '#7030a0', color: '#fff' },
+  { id: 'PRIMER_CUPO', label: 'PRIMER CUPO', bg: '#00ffff', color: '#000' }
+];
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -22,6 +37,7 @@ interface EditTarget {
 export class AdminDashboardComponent implements OnInit {
   leaderboard$!: Observable<Participant[]>;
   participants$!: Observable<Participant[]>;
+  awardsList = AWARDS_CATALOG;
 
   participantForm!: FormGroup;
   fishForm!: FormGroup;
@@ -32,7 +48,6 @@ export class AdminDashboardComponent implements OnInit {
     'total_weight', 'actions'
   ];
 
-  // Panel lateral: qué participante tiene el panel abierto
   activeParticipantId: number | null = null;
   panelMode: PanelMode = 'add';
   editTarget: EditTarget | null = null;
@@ -55,11 +70,10 @@ export class AdminDashboardComponent implements OnInit {
     });
 
     this.fishForm = this.fb.group({
-      weight: [null, [Validators.required, Validators.min(0.01), Validators.max(999)]]
+      weight: [null, [Validators.required, Validators.min(0.01), Validators.max(999)]],
+      award: ['NONE']
     });
   }
-
-  // ─── Participantes ────────────────────────────────────
 
   async addParticipant(): Promise<void> {
     if (this.participantForm.invalid) return;
@@ -87,8 +101,6 @@ export class AdminDashboardComponent implements OnInit {
     }
   }
 
-  // ─── Panel añadir pez ─────────────────────────────────
-
   openAddPanel(participantId: number): void {
     if (this.activeParticipantId === participantId && this.panelMode === 'add') {
       this.closePanel();
@@ -97,42 +109,39 @@ export class AdminDashboardComponent implements OnInit {
     this.activeParticipantId = participantId;
     this.panelMode = 'add';
     this.editTarget = null;
-    this.fishForm.reset();
+    this.fishForm.reset({ award: 'NONE' });
   }
 
-  // ─── Panel editar pez ─────────────────────────────────
-
-  openEditPanel(participantId: number, fishIndex: number, currentWeight: number): void {
+  openEditPanel(participantId: number, fishIndex: number, currentWeight: number, currentAward: string = 'NONE'): void {
     this.activeParticipantId = participantId;
     this.panelMode = 'edit';
-    this.editTarget = { participantId, fishIndex, currentWeight };
-    // Precarga el peso actual para que el juez lo vea y lo corrija
-    this.fishForm.patchValue({ weight: currentWeight });
+    this.editTarget = { participantId, fishIndex, currentWeight, currentAward };
+    this.fishForm.patchValue({ weight: currentWeight, award: currentAward || 'NONE' });
   }
 
   closePanel(): void {
     this.activeParticipantId = null;
     this.editTarget = null;
-    this.fishForm.reset();
+    this.fishForm.reset({ award: 'NONE' });
   }
-
-  // ─── Enviar formulario de pez (añadir o editar) ───────
 
   async submitFish(): Promise<void> {
     if (this.fishForm.invalid || this.activeParticipantId === null) return;
     this.loading = true;
 
     const weight = parseFloat(parseFloat(this.fishForm.value.weight).toFixed(2));
+    const awardId = this.fishForm.value.award === 'NONE' ? null : this.fishForm.value.award;
     let result;
 
     try {
       if (this.panelMode === 'add') {
-        result = await this.tournament.addFish(this.activeParticipantId, weight);
+        result = await this.tournament.addFish(this.activeParticipantId, weight, awardId);
       } else if (this.editTarget) {
         result = await this.tournament.editFish(
           this.editTarget.participantId,
           this.editTarget.fishIndex,
-          weight
+          weight,
+          awardId
         );
       }
 
@@ -148,8 +157,6 @@ export class AdminDashboardComponent implements OnInit {
     }
   }
 
-  // ─── Eliminar un pez concreto ─────────────────────────
-
   async deleteFish(participantId: number, fishIndex: number, weight: number): Promise<void> {
     if (!confirm(`¿Eliminar el pez de ${weight.toFixed(2)} kg?`)) return;
     const result = await this.tournament.deleteFish(participantId, fishIndex);
@@ -163,14 +170,18 @@ export class AdminDashboardComponent implements OnInit {
     }
   }
 
-  // ─── Helpers ─────────────────────────────────────────
-
-  getFish(fishes: number[], idx: number): string {
-    return fishes[idx] !== undefined ? fishes[idx].toFixed(2) + ' kg' : '—';
+  hasFish(fishes: number[], idx: number): boolean {
+    return fishes && fishes[idx] !== undefined;
   }
 
-  hasFish(fishes: number[], idx: number): boolean {
-    return fishes[idx] !== undefined;
+  getAwardBg(awardId?: string): string {
+    const award = this.awardsList.find(a => a.id === awardId);
+    return award && award.id !== 'NONE' ? award.bg : 'transparent';
+  }
+
+  getAwardColor(awardId?: string): string {
+    const award = this.awardsList.find(a => a.id === awardId);
+    return award && award.id !== 'NONE' ? award.color : '#2e7d32'; 
   }
 
   getMedal(pos: number): string {
@@ -181,9 +192,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   getPanelTitle(): string {
-    if (this.panelMode === 'edit' && this.editTarget) {
-      return `Corregir Pez ${this.editTarget.fishIndex + 1}`;
-    }
+    if (this.panelMode === 'edit' && this.editTarget) return `Corregir Pez ${this.editTarget.fishIndex + 1}`;
     return 'Añadir captura';
   }
 

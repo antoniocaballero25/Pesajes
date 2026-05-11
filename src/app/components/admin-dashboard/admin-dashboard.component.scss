@@ -36,8 +36,6 @@
 
 .fish-icon { color: #00695c !important; }
 
-// ─── Formulario añadir participante ───────────────────
-
 .form-card { border-radius: 12px; }
 
 .participant-form {
@@ -57,8 +55,6 @@
   mat-icon { margin-right: 6px; }
 }
 
-// ─── Panel añadir / editar pez ────────────────────────
-
 .fish-panel {
   border-radius: 12px;
   border-left: 4px solid #00695c;
@@ -66,7 +62,6 @@
 
   &.edit-mode {
     border-left-color: #f57c00;
-
     .card-avatar-icon { color: #f57c00 !important; }
   }
 }
@@ -85,6 +80,18 @@
 }
 
 .fish-weight-field { flex: 1; min-width: 220px; }
+.fish-award-field { flex: 1.5; min-width: 280px; } /* Nuevo estilo para el selector */
+
+/* Puntito de color dentro del select */
+.color-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 8px;
+  vertical-align: middle;
+  border: 1px solid rgba(0,0,0,0.2);
+}
 
 .fish-actions {
   display: flex;
@@ -98,10 +105,7 @@
 .edit-hint { color: #f57c00; font-weight: 500; }
 .edit-hint-field { color: #f57c00 !important; }
 
-// ─── Tabla de clasificación ────────────────────────────
-
 .table-card { border-radius: 12px; }
-
 .table-container { overflow-x: auto; }
 
 .admin-table {
@@ -152,55 +156,50 @@
   font-weight: 600;
 }
 
-// ─── Celdas de peces ──────────────────────────────────
-
 .fish-cell {
   display: flex;
   align-items: center;
-  gap: 6px; /* Ajustado para que respiren el peso y la papelera */
+  gap: 6px;
 }
 
+/* Modificado para soportar los fondos de colores */
 .fish-weight {
-  color: #2e7d32;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  display: inline-block;
+  min-width: 65px;
+  text-align: center;
 }
 
-// El peso es clickable para editar
 .fish-weight.clickable {
   cursor: pointer;
-  padding: 2px 6px;
-  border-radius: 6px;
-  transition: background 0.15s;
+  transition: transform 0.15s, opacity 0.15s;
 
   &:hover {
-    background: #fff3e0;
-    color: #e65100;
-    text-decoration: underline;
+    opacity: 0.8;
+    transform: scale(1.05);
   }
 }
 
-.fish-empty {
-  color: #bdbdbd;
-  font-size: 12px;
-}
+.fish-empty { color: #bdbdbd; font-size: 12px; }
 
-// Papelera roja siempre visible junto al peso de cada pez
 .delete-fish-btn {
-  display: inline-flex !important; /* Fuerza a que no se oculte */
+  display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  width: 24px !important; /* Un poco más grande para que el icono encaje perfecto */
+  width: 24px !important;
   height: 24px !important;
   line-height: 24px !important;
-  opacity: 1 !important; /* Visible 100% siempre */
-  background: #ffebee !important; /* Fondo rosa claro */
+  opacity: 1 !important;
+  background: #ffebee !important;
   border-radius: 50% !important;
   transition: background 0.15s, transform 0.15s;
   padding: 0 !important;
   margin: 0 !important;
 
-  ::ng-deep mat-icon { /* Evita que Angular aísle el estilo del icono */
+  ::ng-deep mat-icon {
     font-size: 15px !important;
     width: 15px !important;
     height: 15px !important;
@@ -208,9 +207,9 @@
   }
 
   &:hover {
-    background: #e53935 !important; /* Se vuelve rojo intenso */
-    transform: scale(1.15); /* Crece un poquito */
-    ::ng-deep mat-icon { color: white !important; } /* El cubo se pone blanco */
+    background: #e53935 !important;
+    transform: scale(1.15);
+    ::ng-deep mat-icon { color: white !important; }
   }
 }
 

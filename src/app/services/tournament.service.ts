@@ -8,6 +8,7 @@ export interface Participant {
   names: string;
   pesquil: number;
   fishes: number[];
+  awards?: string[]; // NUEVA COLUMNA PARA LOS PREMIOS
   total_weight: number;
 }
 
@@ -74,6 +75,7 @@ export class TournamentService {
         names: names.toUpperCase().trim(),
         pesquil,
         fishes: [],
+        awards: [], // Se inicializa vacío
         total_weight: 0
       });
 
@@ -93,7 +95,7 @@ export class TournamentService {
 
   // ─── Añadir pez (regla de los 5 peces) ───────────────
 
-  async addFish(participantId: number, weight: number): Promise<FishResult> {
+  async addFish(participantId: number, weight: number, awardId?: string | null): Promise<FishResult> {
     const list = this.participantsSubject.getValue();
     const participant = list.find(p => p.id === participantId);
 
@@ -102,10 +104,12 @@ export class TournamentService {
     }
 
     const fishes = [...participant.fishes];
+    const awards = participant.awards ? [...participant.awards] : [];
     let result: FishResult;
 
     if (fishes.length < 5) {
       fishes.push(weight);
+      awards.push(awardId || 'NONE'); // Se añade el premio al mismo índice
       result = {
         success: true,
         message: `✅ Pez de ${weight.toFixed(2)} kg añadido. (${fishes.length}/5 peces)`
@@ -115,6 +119,7 @@ export class TournamentService {
       if (weight > minWeight) {
         const minIdx = fishes.indexOf(minWeight);
         fishes[minIdx] = weight;
+        awards[minIdx] = awardId || 'NONE'; // Se reemplaza el premio también
         result = {
           success: true,
           message: `🔄 Sustitución: ${minWeight.toFixed(2)} kg → ${weight.toFixed(2)} kg.`
@@ -130,7 +135,7 @@ export class TournamentService {
     const total_weight = parseFloat(fishes.reduce((s, f) => s + f, 0).toFixed(2));
     const { error } = await this.supabase
       .from('participants')
-      .update({ fishes, total_weight })
+      .update({ fishes, awards, total_weight }) // Actualizamos ambos arrays
       .eq('id', participantId);
 
     if (error) return { success: false, message: `Error al guardar: ${error.message}` };
@@ -138,10 +143,8 @@ export class TournamentService {
   }
 
   // ─── Editar peso de un pez concreto ──────────────────
-  // Permite corregir un peso mal introducido sin borrar la pareja.
-  // fishIndex: posición en el array fishes (0, 1, 2, 3 ó 4)
 
-  async editFish(participantId: number, fishIndex: number, newWeight: number): Promise<FishResult> {
+  async editFish(participantId: number, fishIndex: number, newWeight: number, awardId?: string | null): Promise<FishResult> {
     const list = this.participantsSubject.getValue();
     const participant = list.find(p => p.id === participantId);
 
@@ -155,13 +158,18 @@ export class TournamentService {
 
     const oldWeight = participant.fishes[fishIndex];
     const fishes = [...participant.fishes];
+    const awards = participant.awards ? [...participant.awards] : [];
+    
     fishes[fishIndex] = newWeight;
+    // Si no había suficientes premios guardados, rellenamos con 'NONE' hasta alcanzar el índice
+    while (awards.length <= fishIndex) { awards.push('NONE'); }
+    awards[fishIndex] = awardId || 'NONE';
 
     const total_weight = parseFloat(fishes.reduce((s, f) => s + f, 0).toFixed(2));
 
     const { error } = await this.supabase
       .from('participants')
-      .update({ fishes, total_weight })
+      .update({ fishes, awards, total_weight })
       .eq('id', participantId);
 
     if (error) return { success: false, message: `Error al guardar: ${error.message}` };
@@ -184,11 +192,12 @@ export class TournamentService {
 
     const removedWeight = participant.fishes[fishIndex];
     const fishes = participant.fishes.filter((_, i) => i !== fishIndex);
+    const awards = (participant.awards || []).filter((_, i) => i !== fishIndex); // Eliminamos su premio correspondiente
     const total_weight = parseFloat(fishes.reduce((s, f) => s + f, 0).toFixed(2));
 
     const { error } = await this.supabase
       .from('participants')
-      .update({ fishes, total_weight })
+      .update({ fishes, awards, total_weight })
       .eq('id', participantId);
 
     if (error) return { success: false, message: `Error al guardar: ${error.message}` };
