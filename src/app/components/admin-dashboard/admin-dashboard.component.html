@@ -12,34 +12,58 @@
 
   <div class="content">
 
+    <!-- ═══════════════════════════════
+         SECCIÓN 1: AÑADIR PARTICIPANTE
+    ════════════════════════════════ -->
     <mat-card class="form-card mat-elevation-z2">
       <mat-card-header>
         <mat-icon mat-card-avatar class="card-avatar-icon">person_add</mat-icon>
         <mat-card-title>Añadir participante</mat-card-title>
-        <mat-card-subtitle>Registra una nueva pareja en el concurso</mat-card-subtitle>
+        <mat-card-subtitle>El pesquil es opcional, puedes asignarlo después</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
         <form [formGroup]="participantForm" class="participant-form">
+
           <mat-form-field appearance="outline" class="field-names">
             <mat-label>Nombre de la pareja</mat-label>
-            <input matInput formControlName="names" placeholder="Ej: NONO Y VIDAL" (keyup.enter)="addParticipant()" />
+            <input matInput formControlName="names"
+                   placeholder="Ej: NONO Y VIDAL"
+                   (keyup.enter)="addParticipant()" />
             <mat-icon matSuffix>group</mat-icon>
+            <mat-error *ngIf="participantForm.get('names')?.hasError('required')">
+              El nombre es obligatorio
+            </mat-error>
+            <mat-error *ngIf="participantForm.get('names')?.hasError('minlength')">
+              Mínimo 3 caracteres
+            </mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="field-pesquil">
-            <mat-label>Pesquil nº</mat-label>
-            <input matInput type="number" formControlName="pesquil" placeholder="1" min="1" (keyup.enter)="addParticipant()" />
+            <mat-label>Pesquil nº <span class="optional-label">(opcional)</span></mat-label>
+            <input matInput type="number" formControlName="pesquil"
+                   placeholder="—" min="1"
+                   (keyup.enter)="addParticipant()" />
             <mat-icon matSuffix>pin</mat-icon>
           </mat-form-field>
 
-          <button mat-raised-button color="primary" type="button" (click)="addParticipant()" [disabled]="participantForm.invalid || loading" class="add-btn">
+          <button mat-raised-button color="primary"
+                  type="button"
+                  (click)="addParticipant()"
+                  [disabled]="participantForm.get('names')?.invalid || loading"
+                  class="add-btn">
             <mat-icon>add_circle</mat-icon> Añadir
           </button>
+
         </form>
       </mat-card-content>
     </mat-card>
 
-    <mat-card *ngIf="activeParticipantId !== null" class="fish-panel mat-elevation-z6" [class.edit-mode]="panelMode === 'edit'">
+    <!-- ═══════════════════════════════
+         PANEL: AÑADIR / EDITAR PEZ
+    ════════════════════════════════ -->
+    <mat-card *ngIf="activeParticipantId !== null"
+              class="fish-panel mat-elevation-z6"
+              [class.edit-mode]="panelMode === 'edit'">
       <mat-card-header>
         <mat-icon mat-card-avatar class="card-avatar-icon fish-icon">
           {{ panelMode === 'edit' ? 'edit' : 'set_meal' }}
@@ -59,18 +83,25 @@
 
       <mat-card-content>
         <form [formGroup]="fishForm" class="fish-form">
-          
+
           <mat-form-field appearance="outline" class="fish-weight-field">
             <mat-label>{{ panelMode === 'edit' ? 'Nuevo peso (kg)' : 'Peso del pez (kg)' }}</mat-label>
-            <input matInput type="number" formControlName="weight" step="0.01" (keyup.enter)="submitFish()" />
+            <input matInput type="number"
+                   formControlName="weight"
+                   placeholder="Ej: 3.75"
+                   step="0.01"
+                   (keyup.enter)="submitFish()" />
             <mat-icon matSuffix>scale</mat-icon>
+            <mat-error *ngIf="fishForm.get('weight')?.hasError('required')">El peso es obligatorio</mat-error>
+            <mat-error *ngIf="fishForm.get('weight')?.hasError('min')">El peso debe ser mayor que 0</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="fish-award-field">
             <mat-label>Premio / Color</mat-label>
             <mat-select formControlName="award">
               <mat-option *ngFor="let aw of awardsList" [value]="aw.id">
-                <span class="color-dot" [style.backgroundColor]="aw.bg" *ngIf="aw.id !== 'NONE'"></span>
+                <span class="color-dot" [style.backgroundColor]="aw.bg"
+                      *ngIf="aw.id !== 'NONE'"></span>
                 {{ aw.label }}
               </mat-option>
             </mat-select>
@@ -78,29 +109,46 @@
 
           <div class="fish-actions">
             <button mat-stroked-button type="button" (click)="closePanel()">Cancelar</button>
-            <button mat-raised-button [color]="panelMode === 'edit' ? 'accent' : 'primary'" type="button" (click)="submitFish()" [disabled]="fishForm.invalid || loading">
+            <button mat-raised-button
+                    [color]="panelMode === 'edit' ? 'accent' : 'primary'"
+                    type="button"
+                    (click)="submitFish()"
+                    [disabled]="fishForm.invalid || loading">
               <mat-icon>{{ panelMode === 'edit' ? 'save' : 'check_circle' }}</mat-icon>
               {{ getPanelButtonLabel() }}
             </button>
           </div>
+
         </form>
       </mat-card-content>
     </mat-card>
 
+    <!-- ═══════════════════════════════
+         SECCIÓN 2: TABLA CLASIFICACIÓN
+    ════════════════════════════════ -->
     <mat-card class="table-card mat-elevation-z2">
       <mat-card-header>
         <mat-icon mat-card-avatar class="card-avatar-icon">leaderboard</mat-icon>
         <mat-card-title>Clasificación y gestión de capturas</mat-card-title>
+        <mat-card-subtitle>
+          Haz clic en el pesquil <mat-icon style="font-size:13px;vertical-align:middle">edit</mat-icon>
+          para asignarlo · Clic en el peso de un pez para corregirlo
+        </mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
+
         <div class="table-container">
           <table mat-table [dataSource]="(leaderboard$ | async) ?? []" class="admin-table">
 
+            <!-- Posición -->
             <ng-container matColumnDef="pos">
               <th mat-header-cell *matHeaderCellDef>Pos.</th>
-              <td mat-cell *matCellDef="let row; let i = index"><span class="medal">{{ getMedal(i) }}</span></td>
+              <td mat-cell *matCellDef="let row; let i = index">
+                <span class="medal">{{ getMedal(i) }}</span>
+              </td>
             </ng-container>
 
+            <!-- Nombres -->
             <ng-container matColumnDef="names">
               <th mat-header-cell *matHeaderCellDef>Participantes</th>
               <td mat-cell *matCellDef="let row">
@@ -109,15 +157,59 @@
               </td>
             </ng-container>
 
+            <!-- Pesquil — editable inline -->
             <ng-container matColumnDef="pesquil">
               <th mat-header-cell *matHeaderCellDef>Pesquil</th>
-              <td mat-cell *matCellDef="let row"><span class="pesquil-badge">{{ row.pesquil }}</span></td>
+              <td mat-cell *matCellDef="let row">
+
+                <!-- Modo edición -->
+                <div *ngIf="pesquilEditId === row.id; else pesquilView" class="pesquil-edit">
+                  <input type="number"
+                         class="pesquil-input"
+                         [(ngModel)]="pesquilEditValue"
+                         min="1" max="999"
+                         (keyup.enter)="savePesquil(row.id)"
+                         (keyup.escape)="cancelPesquilEdit()"
+                         placeholder="Nº"
+                         autofocus />
+                  <button mat-icon-button class="pesquil-save-btn"
+                          (click)="savePesquil(row.id)"
+                          [disabled]="pesquilLoading"
+                          matTooltip="Guardar">
+                    <mat-icon>check</mat-icon>
+                  </button>
+                  <button mat-icon-button class="pesquil-cancel-btn"
+                          (click)="cancelPesquilEdit()"
+                          matTooltip="Cancelar">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+
+                <!-- Modo visualización -->
+                <ng-template #pesquilView>
+                  <div class="pesquil-view"
+                       (click)="startPesquilEdit(row.id, row.pesquil)"
+                       matTooltip="Clic para asignar/editar pesquil">
+                    <span *ngIf="row.pesquil; else noPesquil" class="pesquil-badge">
+                      {{ row.pesquil }}
+                    </span>
+                    <ng-template #noPesquil>
+                      <span class="pesquil-empty">
+                        <mat-icon>add_circle_outline</mat-icon>
+                        Asignar
+                      </span>
+                    </ng-template>
+                  </div>
+                </ng-template>
+
+              </td>
             </ng-container>
 
+            <!-- Pez 1 -->
             <ng-container matColumnDef="p1">
               <th mat-header-cell *matHeaderCellDef>Pez 1</th>
               <td mat-cell *matCellDef="let row">
-                <div *ngIf="hasFish(row.fishes, 0); else emptyFish0" class="fish-cell">
+                <div *ngIf="hasFish(row.fishes, 0); else empty0" class="fish-cell">
                   <span class="fish-weight clickable"
                         [style.backgroundColor]="getAwardBg(row.awards?.[0])"
                         [style.color]="getAwardColor(row.awards?.[0])"
@@ -125,16 +217,21 @@
                         matTooltip="Clic para editar">
                     {{ row.fishes[0].toFixed(2) }} kg
                   </span>
-                  <button mat-icon-button class="delete-fish-btn" (click)="deleteFish(row.id, 0, row.fishes[0])"><mat-icon>delete</mat-icon></button>
+                  <button mat-icon-button class="delete-fish-btn"
+                          (click)="deleteFish(row.id, 0, row.fishes[0])"
+                          matTooltip="Eliminar este pez">
+                    <mat-icon>delete</mat-icon>
+                  </button>
                 </div>
-                <ng-template #emptyFish0><span class="fish-empty">—</span></ng-template>
+                <ng-template #empty0><span class="fish-empty">—</span></ng-template>
               </td>
             </ng-container>
 
+            <!-- Pez 2 -->
             <ng-container matColumnDef="p2">
               <th mat-header-cell *matHeaderCellDef>Pez 2</th>
               <td mat-cell *matCellDef="let row">
-                <div *ngIf="hasFish(row.fishes, 1); else emptyFish1" class="fish-cell">
+                <div *ngIf="hasFish(row.fishes, 1); else empty1" class="fish-cell">
                   <span class="fish-weight clickable"
                         [style.backgroundColor]="getAwardBg(row.awards?.[1])"
                         [style.color]="getAwardColor(row.awards?.[1])"
@@ -142,16 +239,21 @@
                         matTooltip="Clic para editar">
                     {{ row.fishes[1].toFixed(2) }} kg
                   </span>
-                  <button mat-icon-button class="delete-fish-btn" (click)="deleteFish(row.id, 1, row.fishes[1])"><mat-icon>delete</mat-icon></button>
+                  <button mat-icon-button class="delete-fish-btn"
+                          (click)="deleteFish(row.id, 1, row.fishes[1])"
+                          matTooltip="Eliminar este pez">
+                    <mat-icon>delete</mat-icon>
+                  </button>
                 </div>
-                <ng-template #emptyFish1><span class="fish-empty">—</span></ng-template>
+                <ng-template #empty1><span class="fish-empty">—</span></ng-template>
               </td>
             </ng-container>
 
+            <!-- Pez 3 -->
             <ng-container matColumnDef="p3">
               <th mat-header-cell *matHeaderCellDef>Pez 3</th>
               <td mat-cell *matCellDef="let row">
-                <div *ngIf="hasFish(row.fishes, 2); else emptyFish2" class="fish-cell">
+                <div *ngIf="hasFish(row.fishes, 2); else empty2" class="fish-cell">
                   <span class="fish-weight clickable"
                         [style.backgroundColor]="getAwardBg(row.awards?.[2])"
                         [style.color]="getAwardColor(row.awards?.[2])"
@@ -159,16 +261,21 @@
                         matTooltip="Clic para editar">
                     {{ row.fishes[2].toFixed(2) }} kg
                   </span>
-                  <button mat-icon-button class="delete-fish-btn" (click)="deleteFish(row.id, 2, row.fishes[2])"><mat-icon>delete</mat-icon></button>
+                  <button mat-icon-button class="delete-fish-btn"
+                          (click)="deleteFish(row.id, 2, row.fishes[2])"
+                          matTooltip="Eliminar este pez">
+                    <mat-icon>delete</mat-icon>
+                  </button>
                 </div>
-                <ng-template #emptyFish2><span class="fish-empty">—</span></ng-template>
+                <ng-template #empty2><span class="fish-empty">—</span></ng-template>
               </td>
             </ng-container>
 
+            <!-- Pez 4 -->
             <ng-container matColumnDef="p4">
               <th mat-header-cell *matHeaderCellDef>Pez 4</th>
               <td mat-cell *matCellDef="let row">
-                <div *ngIf="hasFish(row.fishes, 3); else emptyFish3" class="fish-cell">
+                <div *ngIf="hasFish(row.fishes, 3); else empty3" class="fish-cell">
                   <span class="fish-weight clickable"
                         [style.backgroundColor]="getAwardBg(row.awards?.[3])"
                         [style.color]="getAwardColor(row.awards?.[3])"
@@ -176,16 +283,21 @@
                         matTooltip="Clic para editar">
                     {{ row.fishes[3].toFixed(2) }} kg
                   </span>
-                  <button mat-icon-button class="delete-fish-btn" (click)="deleteFish(row.id, 3, row.fishes[3])"><mat-icon>delete</mat-icon></button>
+                  <button mat-icon-button class="delete-fish-btn"
+                          (click)="deleteFish(row.id, 3, row.fishes[3])"
+                          matTooltip="Eliminar este pez">
+                    <mat-icon>delete</mat-icon>
+                  </button>
                 </div>
-                <ng-template #emptyFish3><span class="fish-empty">—</span></ng-template>
+                <ng-template #empty3><span class="fish-empty">—</span></ng-template>
               </td>
             </ng-container>
 
+            <!-- Pez 5 -->
             <ng-container matColumnDef="p5">
               <th mat-header-cell *matHeaderCellDef>Pez 5</th>
               <td mat-cell *matCellDef="let row">
-                <div *ngIf="hasFish(row.fishes, 4); else emptyFish4" class="fish-cell">
+                <div *ngIf="hasFish(row.fishes, 4); else empty4" class="fish-cell">
                   <span class="fish-weight clickable"
                         [style.backgroundColor]="getAwardBg(row.awards?.[4])"
                         [style.color]="getAwardColor(row.awards?.[4])"
@@ -193,29 +305,48 @@
                         matTooltip="Clic para editar">
                     {{ row.fishes[4].toFixed(2) }} kg
                   </span>
-                  <button mat-icon-button class="delete-fish-btn" (click)="deleteFish(row.id, 4, row.fishes[4])"><mat-icon>delete</mat-icon></button>
+                  <button mat-icon-button class="delete-fish-btn"
+                          (click)="deleteFish(row.id, 4, row.fishes[4])"
+                          matTooltip="Eliminar este pez">
+                    <mat-icon>delete</mat-icon>
+                  </button>
                 </div>
-                <ng-template #emptyFish4><span class="fish-empty">—</span></ng-template>
+                <ng-template #empty4><span class="fish-empty">—</span></ng-template>
               </td>
             </ng-container>
 
+            <!-- Total -->
             <ng-container matColumnDef="total_weight">
               <th mat-header-cell *matHeaderCellDef>Total</th>
-              <td mat-cell *matCellDef="let row"><span class="total-weight">{{ row.total_weight.toFixed(2) }} kg</span></td>
+              <td mat-cell *matCellDef="let row">
+                <span class="total-weight">{{ row.total_weight.toFixed(2) }} kg</span>
+              </td>
             </ng-container>
 
+            <!-- Acciones -->
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef>Acciones</th>
               <td mat-cell *matCellDef="let row">
                 <div class="action-buttons">
-                  <button mat-mini-fab color="primary" (click)="openAddPanel(row.id)" class="action-btn"><mat-icon>{{ activeParticipantId === row.id && panelMode === 'add' ? 'close' : 'add' }}</mat-icon></button>
-                  <button mat-mini-fab color="warn" (click)="removeParticipant(row.id, row.names)" class="action-btn"><mat-icon>delete</mat-icon></button>
+                  <button mat-mini-fab color="primary"
+                          (click)="openAddPanel(row.id)"
+                          [matTooltip]="activeParticipantId === row.id && panelMode === 'add' ? 'Cerrar' : 'Añadir pez'"
+                          class="action-btn">
+                    <mat-icon>{{ activeParticipantId === row.id && panelMode === 'add' ? 'close' : 'add' }}</mat-icon>
+                  </button>
+                  <button mat-mini-fab color="warn"
+                          (click)="removeParticipant(row.id, row.names)"
+                          matTooltip="Eliminar participante"
+                          class="action-btn">
+                    <mat-icon>delete</mat-icon>
+                  </button>
                 </div>
               </td>
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;" [class.active-row]="activeParticipantId === row.id"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+                [class.active-row]="activeParticipantId === row.id"></tr>
           </table>
         </div>
 
@@ -224,6 +355,7 @@
           <p>No hay participantes registrados todavía.</p>
           <small>Utiliza el formulario de arriba para añadir parejas.</small>
         </div>
+
       </mat-card-content>
     </mat-card>
 

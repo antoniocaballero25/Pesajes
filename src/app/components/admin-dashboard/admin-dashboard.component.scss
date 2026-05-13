@@ -36,7 +36,15 @@
 
 .fish-icon { color: #00695c !important; }
 
+// ─── Formulario añadir participante ───────────────────
+
 .form-card { border-radius: 12px; }
+
+.optional-label {
+  font-size: 11px;
+  color: #9e9e9e;
+  font-weight: 400;
+}
 
 .participant-form {
   display: flex;
@@ -46,14 +54,16 @@
   padding-top: 8px;
 }
 
-.field-names { flex: 1; min-width: 200px; }
-.field-pesquil { width: 130px; }
+.field-names  { flex: 1; min-width: 200px; }
+.field-pesquil { width: 160px; }
 
 .add-btn {
   margin-top: 4px;
   height: 56px;
   mat-icon { margin-right: 6px; }
 }
+
+// ─── Panel añadir / editar pez ────────────────────────
 
 .fish-panel {
   border-radius: 12px;
@@ -79,10 +89,9 @@
   align-items: flex-start;
 }
 
-.fish-weight-field { flex: 1; min-width: 220px; }
-.fish-award-field { flex: 1.5; min-width: 280px; } /* Nuevo estilo para el selector */
+.fish-weight-field { flex: 1; min-width: 180px; }
+.fish-award-field  { flex: 1.5; min-width: 260px; }
 
-/* Puntito de color dentro del select */
 .color-dot {
   display: inline-block;
   width: 12px;
@@ -103,7 +112,8 @@
 }
 
 .edit-hint { color: #f57c00; font-weight: 500; }
-.edit-hint-field { color: #f57c00 !important; }
+
+// ─── Tabla ────────────────────────────────────────────
 
 .table-card { border-radius: 12px; }
 .table-container { overflow-x: auto; }
@@ -146,6 +156,15 @@
   vertical-align: middle;
 }
 
+// ─── Pesquil editable ─────────────────────────────────
+
+// Modo visualización: clic para editar
+.pesquil-view {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+
 .pesquil-badge {
   display: inline-block;
   background: #e8eaf6;
@@ -154,7 +173,76 @@
   border-radius: 99px;
   font-size: 12px;
   font-weight: 600;
+  transition: background 0.15s;
+
+  .pesquil-view:hover & {
+    background: #c5cae9;
+  }
 }
+
+// Placeholder cuando no hay pesquil asignado
+.pesquil-empty {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: #9e9e9e;
+  font-size: 11px;
+  border: 1px dashed #bdbdbd;
+  border-radius: 99px;
+  padding: 2px 8px;
+  transition: border-color 0.15s, color 0.15s;
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+
+  .pesquil-view:hover & {
+    border-color: #3949ab;
+    color: #3949ab;
+  }
+}
+
+// Modo edición inline del pesquil
+.pesquil-edit {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.pesquil-input {
+  width: 54px;
+  padding: 3px 6px;
+  border: 1px solid #3949ab;
+  border-radius: 6px;
+  font-size: 13px;
+  text-align: center;
+  outline: none;
+  background: white;
+
+  &:focus { border-color: #1a237e; box-shadow: 0 0 0 2px rgba(57,73,171,0.2); }
+
+  // Ocultar flechas del input number
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button { -webkit-appearance: none; }
+}
+
+.pesquil-save-btn {
+  width: 26px !important;
+  height: 26px !important;
+  color: #2e7d32 !important;
+  mat-icon { font-size: 16px !important; width: 16px !important; height: 16px !important; }
+}
+
+.pesquil-cancel-btn {
+  width: 26px !important;
+  height: 26px !important;
+  color: #c62828 !important;
+  mat-icon { font-size: 16px !important; width: 16px !important; height: 16px !important; }
+}
+
+// ─── Celdas de peces ──────────────────────────────────
 
 .fish-cell {
   display: flex;
@@ -162,7 +250,6 @@
   gap: 6px;
 }
 
-/* Modificado para soportar los fondos de colores */
 .fish-weight {
   font-weight: 600;
   font-size: 12px;
@@ -176,11 +263,7 @@
 .fish-weight.clickable {
   cursor: pointer;
   transition: transform 0.15s, opacity 0.15s;
-
-  &:hover {
-    opacity: 0.8;
-    transform: scale(1.05);
-  }
+  &:hover { opacity: 0.8; transform: scale(1.05); }
 }
 
 .fish-empty { color: #bdbdbd; font-size: 12px; }

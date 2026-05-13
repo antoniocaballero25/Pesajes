@@ -15,18 +15,18 @@ interface EditTarget {
 }
 
 export const AWARDS_CATALOG = [
-  { id: 'NONE', label: 'Sin premio', bg: 'transparent', color: '#2e7d32' },
-  { id: '2_DOM_MAN', label: '2º PEZ MAYOR DOMINGO MAÑANA', bg: '#e6b8b7', color: '#000' },
-  { id: '2_SAB_MAN', label: '2º PEZ MAYOR SABADO MAÑANA', bg: '#95b3d7', color: '#000' },
-  { id: '2_SAB_TAR', label: '2º PEZ MAYOR SABADO TARDE', bg: '#ffc000', color: '#000' },
-  { id: '2_VIE_TAR', label: '2º PEZ MAYOR VIERNES TARDE', bg: '#ffff00', color: '#000' },
-  { id: 'BARBO_MAYOR', label: 'BARBO MAYOR', bg: '#00ff00', color: '#000' },
-  { id: 'CARPA_MAYOR', label: 'CARPA MAYOR', bg: '#ff0000', color: '#fff' },
-  { id: '1_DOM_MAN', label: 'PEZ MAYOR DOMINGO MAÑANA', bg: '#205867', color: '#fff' },
-  { id: '1_SAB_MAN', label: 'PEZ MAYOR SABADO MAÑANA', bg: '#38761d', color: '#fff' },
-  { id: '1_SAB_TAR', label: 'PEZ MAYOR SABADO TARDE', bg: '#e26b0a', color: '#fff' },
-  { id: '1_VIE_TAR', label: 'PEZ MAYOR VIERNES TARDE', bg: '#7030a0', color: '#fff' },
-  { id: 'PRIMER_CUPO', label: 'PRIMER CUPO', bg: '#00ffff', color: '#000' }
+  { id: 'NONE',        label: 'Sin premio',                    bg: 'transparent', color: '#2e7d32' },
+  { id: '2_DOM_MAN',   label: '2º PEZ MAYOR DOMINGO MAÑANA',  bg: '#e6b8b7',     color: '#000' },
+  { id: '2_SAB_MAN',   label: '2º PEZ MAYOR SABADO MAÑANA',   bg: '#95b3d7',     color: '#000' },
+  { id: '2_SAB_TAR',   label: '2º PEZ MAYOR SABADO TARDE',    bg: '#ffc000',     color: '#000' },
+  { id: '2_VIE_TAR',   label: '2º PEZ MAYOR VIERNES TARDE',   bg: '#ffff00',     color: '#000' },
+  { id: 'BARBO_MAYOR', label: 'BARBO MAYOR',                   bg: '#00ff00',     color: '#000' },
+  { id: 'CARPA_MAYOR', label: 'CARPA MAYOR',                   bg: '#ff0000',     color: '#fff' },
+  { id: '1_DOM_MAN',   label: 'PEZ MAYOR DOMINGO MAÑANA',     bg: '#205867',     color: '#fff' },
+  { id: '1_SAB_MAN',   label: 'PEZ MAYOR SABADO MAÑANA',      bg: '#38761d',     color: '#fff' },
+  { id: '1_SAB_TAR',   label: 'PEZ MAYOR SABADO TARDE',       bg: '#e26b0a',     color: '#fff' },
+  { id: '1_VIE_TAR',   label: 'PEZ MAYOR VIERNES TARDE',      bg: '#7030a0',     color: '#fff' },
+  { id: 'PRIMER_CUPO', label: 'PRIMER CUPO',                   bg: '#00ffff',     color: '#000' }
 ];
 
 @Component({
@@ -41,6 +41,11 @@ export class AdminDashboardComponent implements OnInit {
 
   participantForm!: FormGroup;
   fishForm!: FormGroup;
+
+  // Formulario inline para editar el pesquil directamente en la tabla
+  pesquilEditId: number | null = null;   // id del participante cuyo pesquil se está editando
+  pesquilEditValue: number | null = null;
+  pesquilLoading = false;
 
   displayedColumns: string[] = [
     'pos', 'names', 'pesquil',
@@ -66,21 +71,24 @@ export class AdminDashboardComponent implements OnInit {
 
     this.participantForm = this.fb.group({
       names:   ['', [Validators.required, Validators.minLength(3)]],
-      pesquil: [null, [Validators.required, Validators.min(1), Validators.max(999)]]
+      pesquil: [null]   // ya no es obligatorio
     });
 
     this.fishForm = this.fb.group({
       weight: [null, [Validators.required, Validators.min(0.01), Validators.max(999)]],
-      award: ['NONE']
+      award:  ['NONE']
     });
   }
 
+  // ─── Participantes ────────────────────────────────────
+
   async addParticipant(): Promise<void> {
-    if (this.participantForm.invalid) return;
+    if (this.participantForm.get('names')?.invalid) return;
     this.loading = true;
     const { names, pesquil } = this.participantForm.value;
+    const pesquilVal = pesquil ? parseInt(pesquil, 10) : null;
     try {
-      await this.tournament.addParticipant(names, pesquil);
+      await this.tournament.addParticipant(names, pesquilVal);
       this.snack.open(`✅ "${names.toUpperCase()}" añadido.`, 'OK', { duration: 3000 });
       this.participantForm.reset();
     } catch (e: any) {
@@ -101,6 +109,37 @@ export class AdminDashboardComponent implements OnInit {
     }
   }
 
+  // ─── Editar pesquil inline ────────────────────────────
+
+  startPesquilEdit(participantId: number, currentValue: number | null): void {
+    this.pesquilEditId = participantId;
+    this.pesquilEditValue = currentValue;
+  }
+
+  cancelPesquilEdit(): void {
+    this.pesquilEditId = null;
+    this.pesquilEditValue = null;
+  }
+
+  async savePesquil(participantId: number): Promise<void> {
+    if (!this.pesquilEditValue || this.pesquilEditValue < 1) {
+      this.snack.open('Introduce un número de pesquil válido.', 'OK', { duration: 3000 });
+      return;
+    }
+    this.pesquilLoading = true;
+    try {
+      await this.tournament.updatePesquil(participantId, this.pesquilEditValue);
+      this.snack.open(`✅ Pesquil actualizado a ${this.pesquilEditValue}.`, 'OK', { duration: 2500 });
+      this.cancelPesquilEdit();
+    } catch (e: any) {
+      this.snack.open(`❌ ${e.message}`, 'OK', { duration: 4000 });
+    } finally {
+      this.pesquilLoading = false;
+    }
+  }
+
+  // ─── Panel añadir pez ─────────────────────────────────
+
   openAddPanel(participantId: number): void {
     if (this.activeParticipantId === participantId && this.panelMode === 'add') {
       this.closePanel();
@@ -111,6 +150,8 @@ export class AdminDashboardComponent implements OnInit {
     this.editTarget = null;
     this.fishForm.reset({ award: 'NONE' });
   }
+
+  // ─── Panel editar pez ─────────────────────────────────
 
   openEditPanel(participantId: number, fishIndex: number, currentWeight: number, currentAward: string = 'NONE'): void {
     this.activeParticipantId = participantId;
@@ -125,12 +166,14 @@ export class AdminDashboardComponent implements OnInit {
     this.fishForm.reset({ award: 'NONE' });
   }
 
+  // ─── Enviar formulario pez ────────────────────────────
+
   async submitFish(): Promise<void> {
     if (this.fishForm.invalid || this.activeParticipantId === null) return;
     this.loading = true;
 
-    const weight = parseFloat(parseFloat(this.fishForm.value.weight).toFixed(2));
-    const awardId = this.fishForm.value.award === 'NONE' ? null : this.fishForm.value.award;
+    const weight   = parseFloat(parseFloat(this.fishForm.value.weight).toFixed(2));
+    const awardId  = this.fishForm.value.award === 'NONE' ? null : this.fishForm.value.award;
     let result;
 
     try {
@@ -157,6 +200,8 @@ export class AdminDashboardComponent implements OnInit {
     }
   }
 
+  // ─── Eliminar pez ─────────────────────────────────────
+
   async deleteFish(participantId: number, fishIndex: number, weight: number): Promise<void> {
     if (!confirm(`¿Eliminar el pez de ${weight.toFixed(2)} kg?`)) return;
     const result = await this.tournament.deleteFish(participantId, fishIndex);
@@ -170,6 +215,8 @@ export class AdminDashboardComponent implements OnInit {
     }
   }
 
+  // ─── Helpers ─────────────────────────────────────────
+
   hasFish(fishes: number[], idx: number): boolean {
     return fishes && fishes[idx] !== undefined;
   }
@@ -181,7 +228,7 @@ export class AdminDashboardComponent implements OnInit {
 
   getAwardColor(awardId?: string): string {
     const award = this.awardsList.find(a => a.id === awardId);
-    return award && award.id !== 'NONE' ? award.color : '#2e7d32'; 
+    return award && award.id !== 'NONE' ? award.color : '#2e7d32';
   }
 
   getMedal(pos: number): string {
