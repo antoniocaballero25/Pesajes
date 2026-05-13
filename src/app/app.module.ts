@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms';  // ← añadido FormsModule
 import { MatSelectModule } from '@angular/material/select';
 
 // Angular Material
@@ -42,6 +42,7 @@ import { MinPipe } from './pipes/min.pipe';
     BrowserAnimationsModule,
     MatSelectModule,
     ReactiveFormsModule,
+    FormsModule,          // ← añadido para [(ngModel)] en el input de pesquil
     AppRoutingModule,
     // Material
     MatToolbarModule,
