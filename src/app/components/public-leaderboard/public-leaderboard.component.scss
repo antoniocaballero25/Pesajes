@@ -1,6 +1,7 @@
 .page-wrapper {
   min-height: 100vh;
-  background: #f4f6f8;
+  
+  
 }
 
 // ─── HEADER / TOOLBAR REDISEÑADO Y RESPONSIVE ───────────
@@ -191,7 +192,7 @@
   50% { opacity: 0.3; }
 }
 
-// ─── MAGIA: Tarjetas con MARCA DE AGUA CUBRIENDO TODA LA TABLA ───
+// ─── MAGIA: Tarjetas con MARCA DE AGUA CENTRADA Y GIGANTE ───
 .table-card {
   position: relative; 
   border-radius: 12px;
@@ -208,11 +209,10 @@
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     
-    background: url('/assets/Logo.png') center;
-    background-size: 1020px 600px;
-    
-    /* Subimos un poquito más la opacidad para que el logo destaque a tope */
-    opacity: 0.35; 
+    background: url('/assets/LogoRecortado.png') no-repeat center center;
+    background-size: cover; 
+    margin-right: 12px;
+    opacity: 0.10; 
     filter: blur(0px); 
     
     z-index: 0; 
@@ -226,7 +226,28 @@
 }
 
 .table-container {
-  overflow-x: auto;
+  /* Le damos un alto máximo a la tabla. Al llegar a este alto, saldrá una barra de scroll lateral */
+  max-height: 65vh; 
+  overflow: auto; 
+}
+
+/* === AQUÍ ESTÁ LA MAGIA DEFINITIVA PARA LA CABECERA === */
+/* Usamos ::ng-deep y apuntamos a las clases nuevas de MDC para romper la seguridad de Angular Material */
+::ng-deep .leaderboard-table {
+  th.mat-header-cell, 
+  th.mat-mdc-header-cell, 
+  th {
+    background-color: #1a237e !important; /* Azul oscuro garantizado */
+    color: #ffffff !important; /* Blanco garantizado */
+    font-weight: 600 !important;
+    font-size: 12px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    padding: 14px 12px !important;
+    z-index: 100 !important; /* Siempre arriba del todo */
+    opacity: 1 !important; /* Cero transparencias */
+    border-bottom: none !important;
+  }
 }
 
 .leaderboard-table {
@@ -234,23 +255,16 @@
   min-width: 700px;
   background: transparent;
 
-  th.mat-header-cell {
-    background: rgba(26, 35, 126, 0.95);
-    color: white;
-    font-weight: 600;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 14px 12px;
-  }
-
-  td.mat-cell {
+  /* Apuntamos a mat-cell y a las nuevas mdc-cell */
+  td.mat-cell, 
+  td.mat-mdc-cell {
     padding: 12px;
     font-size: 13px;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
+    border-bottom: 1px solid rgba(250, 4, 4, 0.05);
   }
 
-  tr.mat-row:hover td {
+  tr.mat-row:hover td,
+  tr.mat-mdc-row:hover td {
     background: rgba(232, 234, 246, 0.6);
   }
 

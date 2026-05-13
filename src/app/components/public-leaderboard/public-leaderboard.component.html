@@ -117,6 +117,7 @@
               </td>
             </ng-container>
   
+            <!-- AQUÍ ESTÁ LA MAGIA DEL HTML (sticky: true) -->
             <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"
               [class.top-row]="(leaderboard$ | async)?.[0]?.id === row.id"></tr>
