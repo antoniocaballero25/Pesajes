@@ -1,9 +1,9 @@
 .page-wrapper {
   min-height: 100vh;
   
-  /* Aquí está la magia: un degradado semitransparente encima de tu foto */
-  background: linear-gradient(rgba(244, 246, 248, 0.75), rgba(244, 246, 248, 0.85)), 
-              url('/assets/Logo.png') no-repeat center center fixed;
+  /* Hacemos la capa blanca un poco más suave (0.4 y 0.6) para que la foto resalte más */
+  background: linear-gradient(rgba(244, 246, 248, 0.4), rgba(244, 246, 248, 0.6)), 
+              url('/assets/OIP.webp') no-repeat center center fixed;
   background-size: cover;
 }
 
@@ -88,7 +88,7 @@
   }
 }
 
-// ─── MEDIA QUERIES (Magia Responsive) ───────────────────
+// ─── MEDIA QUERIES ───────────────────
 @media (max-width: 768px) {
   .app-toolbar {
     padding: 0 16px;
@@ -159,21 +159,22 @@
   font-weight: 600;
   margin: 0;
   color: #1a237e;
-  text-shadow: 1px 1px 2px rgba(255,255,255,0.8); /* Pequeño brillo para destacar sobre el fondo */
+  text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
 }
 
 .section-subtitle {
   font-size: 13px;
-  color: #333; /* Un poco más oscuro para asegurar legibilidad */
+  color: #333; 
   margin: 0 0 20px;
   font-weight: 500;
+  text-shadow: 1px 1px 2px rgba(255,255,255,0.8);
 }
 
 .live-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #e8f5e9;
+  background: rgba(232, 245, 233, 0.9);
   color: #2e7d32;
   padding: 4px 12px;
   border-radius: 99px;
@@ -194,11 +195,17 @@
   50% { opacity: 0.3; }
 }
 
+// MAGIA: Tarjetas con efecto Cristal (Glassmorphism)
 .table-card {
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1) !important; /* Sombra extra */
-  background-color: rgba(255, 255, 255, 0.95); /* Fondo casi blanco para destacar sobre tu imagen */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important; 
+  
+  /* Blanco semitransparente con difuminado (blur) */
+  background-color: rgba(255, 255, 255, 0.75); 
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
 }
 
 .table-container {
@@ -211,7 +218,7 @@
   background: transparent;
 
   th.mat-header-cell {
-    background: #1a237e;
+    background: rgba(26, 35, 126, 0.95);
     color: white;
     font-weight: 600;
     font-size: 12px;
@@ -227,11 +234,11 @@
   }
 
   tr.mat-row:hover td {
-    background: #e8eaf6;
+    background: rgba(232, 234, 246, 0.6);
   }
 
   tr.top-row td {
-    background: rgba(255, 248, 225, 0.9);
+    background: rgba(255, 248, 225, 0.85);
     font-weight: 500;
   }
 }
@@ -253,7 +260,7 @@
 
 .pesquil-badge {
   display: inline-block;
-  background: #e8eaf6;
+  background: rgba(232, 234, 246, 0.8);
   color: #3949ab;
   padding: 2px 10px;
   border-radius: 99px;
@@ -261,7 +268,6 @@
   font-weight: 600;
 }
 
-// Estilos de los peces (Ajustado para soportar los colores de fondo)
 .fish-weight {
   font-weight: 600;
   font-size: 12px;
@@ -273,7 +279,7 @@
 }
 
 .fish-empty {
-  color: #bdbdbd;
+  color: #757575;
 }
 
 .total-weight {
@@ -292,13 +298,16 @@
   small { font-size: 13px; }
 }
 
-// ─── NUEVA LEYENDA RESPONSIVE ───────────────────────────
-
+// ─── LEYENDA (También con efecto cristal) ─────────────────
 .legend-card {
   margin-top: 24px;
   border-radius: 12px;
-  background-color: rgba(255, 255, 255, 0.95); /* Fondo casi blanco */
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1) !important; /* Sombra extra */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+  
+  background-color: rgba(255, 255, 255, 0.75); 
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   
   h3 {
     margin: 0 0 16px;
@@ -314,7 +323,7 @@
   padding: 0;
   margin: 0;
   display: flex;
-  flex-wrap: wrap; // ¡Esta es la clave para que se adapte en móvil!
+  flex-wrap: wrap; 
   gap: 8px;
   justify-content: center;
 
