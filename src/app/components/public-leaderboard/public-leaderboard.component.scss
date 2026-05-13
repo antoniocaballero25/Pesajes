@@ -1,10 +1,6 @@
 .page-wrapper {
   min-height: 100vh;
-  
-  /* Hacemos la capa blanca un poco más suave (0.4 y 0.6) para que la foto resalte más */
-  background: linear-gradient(rgba(244, 246, 248, 0.4), rgba(244, 246, 248, 0.6)), 
-              url('/assets/OIP.webp') no-repeat center center fixed;
-  background-size: cover;
+  background: #f4f6f8; /* Color de fondo base limpio y elegante */
 }
 
 // ─── HEADER / TOOLBAR REDISEÑADO Y RESPONSIVE ───────────
@@ -195,17 +191,38 @@
   50% { opacity: 0.3; }
 }
 
-// MAGIA: Tarjetas con efecto Cristal (Glassmorphism)
+// ─── MAGIA: Tarjetas con MARCA DE AGUA CENTRADA Y NÍTIDA ───
 .table-card {
+  position: relative; 
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important; 
   
-  /* Blanco semitransparente con difuminado (blur) */
-  background-color: rgba(255, 255, 255, 0.75); 
+  background-color: rgba(255, 255, 255, 0.90); 
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.6);
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    
+    background: url('/assets/Logo.png') no-repeat center center;
+    background-size: contain; 
+    
+    /* SOLUCIÓN: Eliminamos el blur (0px) y dejamos la opacidad justa para que se vea claro pero no moleste al leer */
+    opacity: 0.25; 
+    filter: blur(0px); 
+    
+    z-index: 0; 
+    pointer-events: none; 
+  }
+
+  mat-card-content {
+    position: relative;
+    z-index: 1;
+  }
 }
 
 .table-container {
@@ -298,13 +315,13 @@
   small { font-size: 13px; }
 }
 
-// ─── LEYENDA (También con efecto cristal) ─────────────────
+// ─── LEYENDA ─────────────────
 .legend-card {
   margin-top: 24px;
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2) !important;
   
-  background-color: rgba(255, 255, 255, 0.75); 
+  background-color: rgba(255, 255, 255, 0.90); 
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.6);
