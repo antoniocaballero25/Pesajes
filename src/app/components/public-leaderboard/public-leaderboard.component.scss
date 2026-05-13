@@ -1,6 +1,6 @@
 .page-wrapper {
   min-height: 100vh;
-  background: #f4f6f8; /* Color de fondo base limpio y elegante */
+  background: #f4f6f8;
 }
 
 // ─── HEADER / TOOLBAR REDISEÑADO Y RESPONSIVE ───────────
@@ -191,7 +191,7 @@
   50% { opacity: 0.3; }
 }
 
-// ─── MAGIA: Tarjetas con MARCA DE AGUA CENTRADA Y NÍTIDA ───
+// ─── MAGIA: Tarjetas con MARCA DE AGUA CUBRIENDO TODA LA TABLA ───
 .table-card {
   position: relative; 
   border-radius: 12px;
@@ -208,11 +208,11 @@
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
     
-    background: url('/assets/Logo.png') no-repeat center center;
-    background-size: contain; 
+    background: url('/assets/Logo.png') center;
+    background-size: 1020px 600px;
     
-    /* SOLUCIÓN: Eliminamos el blur (0px) y dejamos la opacidad justa para que se vea claro pero no moleste al leer */
-    opacity: 0.25; 
+    /* Subimos un poquito más la opacidad para que el logo destaque a tope */
+    opacity: 0.35; 
     filter: blur(0px); 
     
     z-index: 0; 
