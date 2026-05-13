@@ -1,6 +1,7 @@
 .page-wrapper {
   min-height: 100vh;
-  
+  display: flex;
+  flex-direction: column; /* Esto ayuda a que el footer se quede siempre abajo */
   
 }
 
@@ -139,9 +140,12 @@
 // ─── CONTENIDO DE LA PÁGINA ─────────────────────────────
 
 .content {
+  flex: 1; /* Permite que el contenido empuje el footer hacia abajo */
+  width: 100%;
   max-width: 1100px;
   margin: 0 auto;
   padding: 32px 16px;
+  box-sizing: border-box;
 }
 
 .section-header {
@@ -192,7 +196,7 @@
   50% { opacity: 0.3; }
 }
 
-// ─── MAGIA: Tarjetas con MARCA DE AGUA CENTRADA Y GIGANTE ───
+// ─── MAGIA: Tarjetas con MARCA DE AGUA ───
 .table-card {
   position: relative; 
   border-radius: 12px;
@@ -210,7 +214,7 @@
     top: 0; left: 0; right: 0; bottom: 0;
     
     background: url('/assets/LogoRecortado.png') no-repeat center center;
-    background-size: cover; 
+    background-size: contain; 
     margin-right: 12px;
     opacity: 0.10; 
     filter: blur(0px); 
@@ -226,28 +230,34 @@
 }
 
 .table-container {
-  /* Le damos un alto máximo a la tabla. Al llegar a este alto, saldrá una barra de scroll lateral */
   max-height: 65vh; 
   overflow: auto; 
 }
 
-/* === AQUÍ ESTÁ LA MAGIA DEFINITIVA PARA LA CABECERA === */
-/* Usamos ::ng-deep y apuntamos a las clases nuevas de MDC para romper la seguridad de Angular Material */
-::ng-deep .leaderboard-table {
-  th.mat-header-cell, 
-  th.mat-mdc-header-cell, 
-  th {
-    background-color: #1a237e !important; /* Azul oscuro garantizado */
-    color: #ffffff !important; /* Blanco garantizado */
-    font-weight: 600 !important;
-    font-size: 12px !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
-    padding: 14px 12px !important;
-    z-index: 100 !important; /* Siempre arriba del todo */
-    opacity: 1 !important; /* Cero transparencias */
-    border-bottom: none !important;
-  }
+/* === ARTILLERÍA PESADA PARA LA CABECERA AZUL === */
+::ng-deep .mat-mdc-table .mdc-data-table__header-row {
+  background-color: #1a237e !important;
+}
+
+::ng-deep table mat-header-row,
+::ng-deep .mat-mdc-header-row,
+::ng-deep th.mat-header-cell,
+::ng-deep th.mat-mdc-header-cell {
+  background-color: #1a237e !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  opacity: 1 !important;
+  z-index: 100 !important;
+}
+
+/* Asegurar que las celdas de la cabecera no tengan fondo transparente */
+.leaderboard-table th {
+  background: #1a237e !important;
+  color: white !important;
+  padding: 14px 12px !important;
 }
 
 .leaderboard-table {
@@ -255,8 +265,7 @@
   min-width: 700px;
   background: transparent;
 
-  /* Apuntamos a mat-cell y a las nuevas mdc-cell */
-  td.mat-cell, 
+  td.mat-cell,
   td.mat-mdc-cell {
     padding: 12px;
     font-size: 13px;
@@ -366,5 +375,29 @@
     border: 1px solid rgba(0,0,0,0.1);
     text-transform: uppercase;
     box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  }
+}
+
+// ─── FOOTER DE ANTONIO CABALLERO ─────────────────
+.app-footer {
+  text-align: center;
+  padding: 32px 16px;
+  color: #1a237e;
+  font-size: 13px;
+  margin-top: auto; /* Empuja el footer siempre abajo del todo */
+  
+  p {
+    margin: 6px 0;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.7);
+  }
+
+  strong {
+    font-weight: 700;
+    background-color: rgba(255, 255, 255, 0.6);
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(26, 35, 126, 0.2);
+    display: inline-block;
+    margin-top: 4px;
   }
 }

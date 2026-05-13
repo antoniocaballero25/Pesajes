@@ -117,7 +117,6 @@
               </td>
             </ng-container>
   
-            <!-- AQUÍ ESTÁ LA MAGIA DEL HTML (sticky: true) -->
             <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"
               [class.top-row]="(leaderboard$ | async)?.[0]?.id === row.id"></tr>
@@ -152,4 +151,11 @@
     </mat-card>
 
   </div>
+
+  <!-- AQUÍ ESTÁ TU NUEVO FOOTER -->
+  <footer class="app-footer">
+    <p>&copy; 2026 IV OPEN ORONCARP GARCÍA SOLA. Todos los derechos reservados.</p>
+    <p>Desarrollado por <strong>Antonio Caballero</strong></p>
+  </footer>
+
 </div>
