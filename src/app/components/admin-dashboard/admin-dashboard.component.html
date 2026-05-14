@@ -76,6 +76,9 @@
               <span *ngIf="panelMode === 'edit' && editTarget" class="edit-hint">
                 · Peso actual: <strong>{{ editTarget.currentWeight.toFixed(2) }} kg</strong>
               </span>
+              <span *ngIf="panelMode === 'add'" style="color: #00695c; font-weight: 500;">
+                · Se guardará la hora automáticamente
+              </span>
             </ng-container>
           </ng-container>
         </mat-card-subtitle>
@@ -84,18 +87,29 @@
       <mat-card-content>
         <form [formGroup]="fishForm" class="fish-form">
 
+          <!-- CAMPO PESO -->
           <mat-form-field appearance="outline" class="fish-weight-field">
             <mat-label>{{ panelMode === 'edit' ? 'Nuevo peso (kg)' : 'Peso del pez (kg)' }}</mat-label>
             <input matInput type="number"
                    formControlName="weight"
                    placeholder="Ej: 3.75"
                    step="0.01"
-                   (keyup.enter)="submitFish()" />
+                   (keyup.enter)="submitFish()"
+                   autofocus />
             <mat-icon matSuffix>scale</mat-icon>
             <mat-error *ngIf="fishForm.get('weight')?.hasError('required')">El peso es obligatorio</mat-error>
             <mat-error *ngIf="fishForm.get('weight')?.hasError('min')">El peso debe ser mayor que 0</mat-error>
           </mat-form-field>
 
+          <!-- CAMPO FECHA Y HORA (¡SÓLO VISIBLE EN MODO EDICIÓN!) -->
+          <mat-form-field appearance="outline" class="fish-time-field" *ngIf="panelMode === 'edit'">
+            <mat-label>Fecha y hora de captura</mat-label>
+            <input matInput type="datetime-local" formControlName="catchTime" (keyup.enter)="submitFish()" />
+            <mat-icon matSuffix>event</mat-icon>
+            <mat-error *ngIf="fishForm.get('catchTime')?.hasError('required')">Obligatorio</mat-error>
+          </mat-form-field>
+
+          <!-- CAMPO PREMIO -->
           <mat-form-field appearance="outline" class="fish-award-field">
             <mat-label>Premio / Color</mat-label>
             <mat-select formControlName="award">
@@ -213,7 +227,7 @@
                   <span class="fish-weight clickable"
                         [style.backgroundColor]="getAwardBg(row.awards?.[0])"
                         [style.color]="getAwardColor(row.awards?.[0])"
-                        (click)="openEditPanel(row.id, 0, row.fishes[0], row.awards?.[0])"
+                        (click)="openEditPanel(row.id, 0, row.fishes[0], row.awards?.[0], row.catchTimes?.[0])"
                         matTooltip="Clic para editar">
                     {{ row.fishes[0].toFixed(2) }} kg
                   </span>
@@ -235,7 +249,7 @@
                   <span class="fish-weight clickable"
                         [style.backgroundColor]="getAwardBg(row.awards?.[1])"
                         [style.color]="getAwardColor(row.awards?.[1])"
-                        (click)="openEditPanel(row.id, 1, row.fishes[1], row.awards?.[1])"
+                        (click)="openEditPanel(row.id, 1, row.fishes[1], row.awards?.[1], row.catchTimes?.[1])"
                         matTooltip="Clic para editar">
                     {{ row.fishes[1].toFixed(2) }} kg
                   </span>
@@ -257,7 +271,7 @@
                   <span class="fish-weight clickable"
                         [style.backgroundColor]="getAwardBg(row.awards?.[2])"
                         [style.color]="getAwardColor(row.awards?.[2])"
-                        (click)="openEditPanel(row.id, 2, row.fishes[2], row.awards?.[2])"
+                        (click)="openEditPanel(row.id, 2, row.fishes[2], row.awards?.[2], row.catchTimes?.[2])"
                         matTooltip="Clic para editar">
                     {{ row.fishes[2].toFixed(2) }} kg
                   </span>
@@ -279,7 +293,7 @@
                   <span class="fish-weight clickable"
                         [style.backgroundColor]="getAwardBg(row.awards?.[3])"
                         [style.color]="getAwardColor(row.awards?.[3])"
-                        (click)="openEditPanel(row.id, 3, row.fishes[3], row.awards?.[3])"
+                        (click)="openEditPanel(row.id, 3, row.fishes[3], row.awards?.[3], row.catchTimes?.[3])"
                         matTooltip="Clic para editar">
                     {{ row.fishes[3].toFixed(2) }} kg
                   </span>
@@ -301,7 +315,7 @@
                   <span class="fish-weight clickable"
                         [style.backgroundColor]="getAwardBg(row.awards?.[4])"
                         [style.color]="getAwardColor(row.awards?.[4])"
-                        (click)="openEditPanel(row.id, 4, row.fishes[4], row.awards?.[4])"
+                        (click)="openEditPanel(row.id, 4, row.fishes[4], row.awards?.[4], row.catchTimes?.[4])"
                         matTooltip="Clic para editar">
                     {{ row.fishes[4].toFixed(2) }} kg
                   </span>

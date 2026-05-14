@@ -43,7 +43,6 @@ export class PublicLeaderboardComponent implements OnInit {
     { id: 'PRIMER_CUPO', label: 'PRIMER CUPO', bg: '#00ffff', color: '#000' }
   ];
 
-  // Inyectamos MatDialog en el constructor
   constructor(
     private tournament: TournamentService,
     private dialog: MatDialog
@@ -78,7 +77,6 @@ export class PublicLeaderboardComponent implements OnInit {
     return item.id || item.names;
   }
 
-  // FUNCIÓN QUE ABRE LA FICHA DEL EQUIPO
   openTeamDetails(team: Participant): void {
     this.dialog.open(TeamDetailsDialogComponent, {
       width: '500px',
@@ -89,59 +87,68 @@ export class PublicLeaderboardComponent implements OnInit {
 }
 
 // =====================================================================
-// COMPONENTE PARA LA VENTANA EMERGENTE (FICHA DEL EQUIPO)
-// Lo ponemos aquí para no tener que crear archivos nuevos
+// COMPONENTE PARA LA VENTANA EMERGENTE CON LA HORA REAL DE LA BD
 // =====================================================================
 @Component({
   selector: 'app-team-details-dialog',
   template: `
-    <div style="background-color: #1a237e; color: white; padding: 20px; border-radius: 4px 4px 0 0;">
-      <h2 style="margin: 0; font-size: 22px; font-weight: 700;">{{ data.names }}</h2>
-      <div style="margin-top: 8px; display: inline-block; background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 50px; font-weight: 600;">
-        Pesquil {{ data.pesquil }}
+    <div style="background-color: #1a237e; color: white; padding: 20px; border-radius: 4px 4px 0 0; position: relative;">
+      <h2 style="margin: 0; font-size: 20px; font-weight: 700; padding-right: 30px;">{{ data.names }}</h2>
+      <div style="margin-top: 10px; display: flex; gap: 10px; align-items: center;">
+        <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 50px; font-size: 13px; font-weight: 600;">
+          Pesquil {{ data.pesquil }}
+        </span>
+        <span style="background: #4caf50; color: white; padding: 4px 12px; border-radius: 50px; font-size: 13px; font-weight: 600;">
+          {{ data.fishes.length }} capturas
+        </span>
       </div>
     </div>
     
-    <mat-dialog-content style="padding: 24px; background: #f8f9fa;">
-      <h3 style="color: #333; margin-bottom: 16px; border-bottom: 2px solid #e0e0e0; padding-bottom: 8px;">Registro de Capturas</h3>
+    <mat-dialog-content style="padding: 20px; background: #fdfdfd;">
+      <h3 style="color: #555; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 8px; font-size: 16px; font-weight: 600;">
+        Historial de pesajes
+      </h3>
       
-      <div style="display: flex; flex-direction: column; gap: 12px;">
+      <div style="display: flex; flex-direction: column; gap: 10px;">
         <ng-container *ngFor="let fish of data.fishes; let i = index">
-          <div *ngIf="fish" style="background: white; padding: 12px 16px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #4caf50;">
+          <div *ngIf="fish" style="background: white; padding: 12px; border-radius: 10px; border: 1px solid #efefef; display: flex; justify-content: space-between; align-items: center;">
             
-            <div style="flex: 1;">
-              <strong style="font-size: 16px; color: #1a237e;">Pez {{ i + 1 }}</strong>
-              <div style="font-size: 18px; font-weight: 700; color: #b71c1c;">{{ fish | number:'1.2-2' }} kg</div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="width: 40px; height: 40px; background: #e8eaf6; color: #1a237e; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800;">
+                {{ i + 1 }}
+              </div>
+              <div>
+                <div style="font-size: 12px; color: #777; text-transform: uppercase; font-weight: 600;">Captura</div>
+                <div style="font-size: 18px; font-weight: 800; color: #b71c1c;">{{ fish | number:'1.2-2' }} kg</div>
+              </div>
             </div>
             
-            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
-              <!-- MARCADOR DE HORA -->
-              <span style="font-size: 12px; color: #666; display: flex; align-items: center; gap: 4px;">
-                <mat-icon style="font-size: 16px; width: 16px; height: 16px;">access_time</mat-icon> 
-                14:3{{i}}h <!-- Placeholder temporal de la hora -->
-              </span>
+            <div style="text-align: right; border-left: 1px solid #f0f0f0; padding-left: 15px;">
               
-              <!-- FOTO PLACEHOLDER (NIVEL DIOS) -->
-              <span style="font-size: 11px; color: #1976d2; display: flex; align-items: center; gap: 4px; background: #e3f2fd; padding: 2px 8px; border-radius: 4px; cursor: pointer;">
-                <mat-icon style="font-size: 14px; width: 14px; height: 14px;">image</mat-icon> Ver foto
-              </span>
+              <div style="font-size: 11px; color: #444; font-weight: 600; display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin-bottom: 2px;">
+                <mat-icon style="font-size: 14px; width: 14px; height: 14px; color: #1a237e;">calendar_today</mat-icon>
+                {{ data.catchTimes && data.catchTimes[i] ? (data.catchTimes[i] | date:'dd/MM/yyyy') : 'Sin fecha' }}
+              </div>
+              
+              <div style="font-size: 11px; color: #444; font-weight: 600; display: flex; align-items: center; justify-content: flex-end; gap: 4px;">
+                <mat-icon style="font-size: 14px; width: 14px; height: 14px; color: #1a237e;">access_time</mat-icon>
+                {{ data.catchTimes && data.catchTimes[i] ? (data.catchTimes[i] | date:'HH:mm') + ' h' : '--:-- h' }}
+              </div>
+
             </div>
             
           </div>
         </ng-container>
-        
-        <div *ngIf="!data.fishes || data.fishes.length === 0" style="text-align: center; color: #757575; padding: 20px 0;">
-          Este equipo aún no ha pesado ninguna captura.
-        </div>
       </div>
       
-      <div style="margin-top: 24px; text-align: right; font-size: 20px;">
-        Total: <strong style="color: #b71c1c;">{{ data.total_weight | number:'1.2-2' }} kg</strong>
+      <div style="margin-top: 20px; padding: 15px; background: #e8f5e9; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-weight: 600; color: #2e7d32;">PESO TOTAL ACUMULADO</span>
+        <span style="font-size: 22px; font-weight: 900; color: #1b5e20;">{{ data.total_weight | number:'1.2-2' }} kg</span>
       </div>
     </mat-dialog-content>
     
-    <mat-dialog-actions align="end" style="padding: 16px; background: white; border-top: 1px solid #eee;">
-      <button mat-stroked-button mat-dialog-close color="primary">Cerrar Ficha</button>
+    <mat-dialog-actions align="end" style="padding: 15px; border-top: 1px solid #eee;">
+      <button mat-flat-button mat-dialog-close style="background-color: #1a237e; color: white;">Entendido</button>
     </mat-dialog-actions>
   `
 })

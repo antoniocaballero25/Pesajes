@@ -119,7 +119,6 @@
   
             <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
             
-            <!-- AÑADIDO: (click)="openTeamDetails(row)" y la clase clickable-row -->
             <tr mat-row *matRowDef="let row; columns: displayedColumns; trackBy: trackByTeam"
               [@rowAnimation]
               [class.top-row]="(leaderboard$ | async)?.[0]?.id === row.id"

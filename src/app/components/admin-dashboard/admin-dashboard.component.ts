@@ -12,6 +12,7 @@ interface EditTarget {
   fishIndex: number;
   currentWeight: number;
   currentAward?: string;
+  currentCatchTime?: string;
 }
 
 export const AWARDS_CATALOG = [
@@ -42,8 +43,7 @@ export class AdminDashboardComponent implements OnInit {
   participantForm!: FormGroup;
   fishForm!: FormGroup;
 
-  // Formulario inline para editar el pesquil directamente en la tabla
-  pesquilEditId: number | null = null;   // id del participante cuyo pesquil se está editando
+  pesquilEditId: number | null = null;
   pesquilEditValue: number | null = null;
   pesquilLoading = false;
 
@@ -71,16 +71,21 @@ export class AdminDashboardComponent implements OnInit {
 
     this.participantForm = this.fb.group({
       names:   ['', [Validators.required, Validators.minLength(3)]],
-      pesquil: [null]   // ya no es obligatorio
+      pesquil: [null]
     });
 
     this.fishForm = this.fb.group({
       weight: [null, [Validators.required, Validators.min(0.01), Validators.max(999)]],
-      award:  ['NONE']
+      award:  ['NONE'],
+      catchTime: [this.getCurrentDateTime(), Validators.required] 
     });
   }
 
-  // ─── Participantes ────────────────────────────────────
+  getCurrentDateTime(): string {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    return now.toISOString().slice(0, 16);
+  }
 
   async addParticipant(): Promise<void> {
     if (this.participantForm.get('names')?.invalid) return;
@@ -109,8 +114,6 @@ export class AdminDashboardComponent implements OnInit {
     }
   }
 
-  // ─── Editar pesquil inline ────────────────────────────
-
   startPesquilEdit(participantId: number, currentValue: number | null): void {
     this.pesquilEditId = participantId;
     this.pesquilEditValue = currentValue;
@@ -138,8 +141,6 @@ export class AdminDashboardComponent implements OnInit {
     }
   }
 
-  // ─── Panel añadir pez ─────────────────────────────────
-
   openAddPanel(participantId: number): void {
     if (this.activeParticipantId === participantId && this.panelMode === 'add') {
       this.closePanel();
@@ -148,43 +149,48 @@ export class AdminDashboardComponent implements OnInit {
     this.activeParticipantId = participantId;
     this.panelMode = 'add';
     this.editTarget = null;
-    this.fishForm.reset({ award: 'NONE' });
+    this.fishForm.reset({ award: 'NONE', catchTime: this.getCurrentDateTime() });
   }
 
-  // ─── Panel editar pez ─────────────────────────────────
-
-  openEditPanel(participantId: number, fishIndex: number, currentWeight: number, currentAward: string = 'NONE'): void {
+  openEditPanel(participantId: number, fishIndex: number, currentWeight: number, currentAward: string = 'NONE', currentCatchTime?: string): void {
     this.activeParticipantId = participantId;
     this.panelMode = 'edit';
-    this.editTarget = { participantId, fishIndex, currentWeight, currentAward };
-    this.fishForm.patchValue({ weight: currentWeight, award: currentAward || 'NONE' });
+    this.editTarget = { participantId, fishIndex, currentWeight, currentAward, currentCatchTime };
+    this.fishForm.patchValue({ 
+      weight: currentWeight, 
+      award: currentAward || 'NONE',
+      catchTime: currentCatchTime || this.getCurrentDateTime() 
+    });
   }
 
   closePanel(): void {
     this.activeParticipantId = null;
     this.editTarget = null;
-    this.fishForm.reset({ award: 'NONE' });
+    this.fishForm.reset({ award: 'NONE', catchTime: this.getCurrentDateTime() });
   }
-
-  // ─── Enviar formulario pez ────────────────────────────
 
   async submitFish(): Promise<void> {
     if (this.fishForm.invalid || this.activeParticipantId === null) return;
     this.loading = true;
 
-    const weight   = parseFloat(parseFloat(this.fishForm.value.weight).toFixed(2));
-    const awardId  = this.fishForm.value.award === 'NONE' ? null : this.fishForm.value.award;
+    const weight  = parseFloat(parseFloat(this.fishForm.value.weight).toFixed(2));
+    const awardId = this.fishForm.value.award === 'NONE' ? null : this.fishForm.value.award;
+    
+    // MAGIA HÍBRIDA: Si es nuevo pez, coge la hora exacta de ahora. Si es edición, coge la del formulario.
+    const catchTime = this.panelMode === 'add' ? this.getCurrentDateTime() : this.fishForm.value.catchTime;
+
     let result;
 
     try {
       if (this.panelMode === 'add') {
-        result = await this.tournament.addFish(this.activeParticipantId, weight, awardId);
+        result = await (this.tournament as any).addFish(this.activeParticipantId, weight, awardId, catchTime);
       } else if (this.editTarget) {
-        result = await this.tournament.editFish(
+        result = await (this.tournament as any).editFish(
           this.editTarget.participantId,
           this.editTarget.fishIndex,
           weight,
-          awardId
+          awardId,
+          catchTime
         );
       }
 
@@ -195,12 +201,12 @@ export class AdminDashboardComponent implements OnInit {
         });
         if (result.success) this.closePanel();
       }
+    } catch (e: any) {
+      this.snack.open(`❌ Ha ocurrido un error`, 'OK', { duration: 4000 });
     } finally {
       this.loading = false;
     }
   }
-
-  // ─── Eliminar pez ─────────────────────────────────────
 
   async deleteFish(participantId: number, fishIndex: number, weight: number): Promise<void> {
     if (!confirm(`¿Eliminar el pez de ${weight.toFixed(2)} kg?`)) return;
@@ -214,8 +220,6 @@ export class AdminDashboardComponent implements OnInit {
       this.closePanel();
     }
   }
-
-  // ─── Helpers ─────────────────────────────────────────
 
   hasFish(fishes: number[], idx: number): boolean {
     return fishes && fishes[idx] !== undefined;
