@@ -26,7 +26,7 @@
       </span>
     </div>
     <p class="section-subtitle">
-      Ordenado por peso total capturado · Máximo 5 peces por pareja
+      Ordenado por peso total capturado · Haz clic en una pareja para ver su ficha
     </p>
 
     <mat-card class="table-card mat-elevation-z2">
@@ -118,8 +118,13 @@
             </ng-container>
   
             <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"
-              [class.top-row]="(leaderboard$ | async)?.[0]?.id === row.id"></tr>
+            
+            <!-- AÑADIDO: (click)="openTeamDetails(row)" y la clase clickable-row -->
+            <tr mat-row *matRowDef="let row; columns: displayedColumns; trackBy: trackByTeam"
+              [@rowAnimation]
+              [class.top-row]="(leaderboard$ | async)?.[0]?.id === row.id"
+              class="clickable-row"
+              (click)="openTeamDetails(row)"></tr>
           </table>
         </div>
   
@@ -152,7 +157,6 @@
 
   </div>
 
-  <!-- AQUÍ ESTÁ TU NUEVO FOOTER -->
   <footer class="app-footer">
     <p>&copy; 2026 IV OPEN ORONCARP GARCÍA SOLA. Todos los derechos reservados.</p>
     <p>Desarrollado por <strong>Antonio Caballero</strong></p>

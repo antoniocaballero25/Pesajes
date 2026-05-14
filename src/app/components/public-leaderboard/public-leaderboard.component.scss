@@ -1,8 +1,11 @@
 .page-wrapper {
   min-height: 100vh;
   display: flex;
-  flex-direction: column; /* Esto ayuda a que el footer se quede siempre abajo */
+  flex-direction: column; 
   
+  background: linear-gradient(rgba(244, 246, 248, 0.65), rgba(244, 246, 248, 0.85)), 
+              url('/assets/LogoRecortado.png') no-repeat center center fixed;
+  background-size: cover;
 }
 
 // ─── HEADER / TOOLBAR REDISEÑADO Y RESPONSIVE ───────────
@@ -140,7 +143,7 @@
 // ─── CONTENIDO DE LA PÁGINA ─────────────────────────────
 
 .content {
-  flex: 1; /* Permite que el contenido empuje el footer hacia abajo */
+  flex: 1; 
   width: 100%;
   max-width: 1100px;
   margin: 0 auto;
@@ -253,7 +256,6 @@
   z-index: 100 !important;
 }
 
-/* Asegurar que las celdas de la cabecera no tengan fondo transparente */
 .leaderboard-table th {
   background: #1a237e !important;
   color: white !important;
@@ -272,9 +274,19 @@
     border-bottom: 1px solid rgba(250, 4, 4, 0.05);
   }
 
-  tr.mat-row:hover td,
-  tr.mat-mdc-row:hover td {
-    background: rgba(232, 234, 246, 0.6);
+  /* === ESTILO PARA LA FILA CLICABLE === */
+  tr.mat-row.clickable-row,
+  tr.mat-mdc-row.clickable-row {
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    
+    &:hover td {
+      background: rgba(26, 35, 126, 0.08) !important;
+    }
+    
+    &:active {
+      transform: scale(0.99);
+    }
   }
 
   tr.top-row td {
@@ -384,7 +396,7 @@
   padding: 32px 16px;
   color: #1a237e;
   font-size: 13px;
-  margin-top: auto; /* Empuja el footer siempre abajo del todo */
+  margin-top: auto; 
   
   p {
     margin: 6px 0;
@@ -400,4 +412,11 @@
     display: inline-block;
     margin-top: 4px;
   }
+}
+
+/* Quitar el padding extra por defecto de las tarjetas de diálogo para que quede perfecto */
+::ng-deep .custom-dialog-container .mat-mdc-dialog-container .mdc-dialog__surface {
+  padding: 0 !important;
+  border-radius: 12px !important;
+  overflow: hidden;
 }

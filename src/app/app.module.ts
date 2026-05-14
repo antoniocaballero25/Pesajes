@@ -16,13 +16,15 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatDialogModule } from '@angular/material/dialog'; // ← AÑADIDO: Módulo para ventanas emergentes
 
 // Routing
 import { AppRoutingModule } from './app-routing.module';
 
 // Components
+// ← AÑADIDO: Importamos también TeamDetailsDialogComponent de nuestro archivo
 import { AppComponent } from './app.component';
-import { PublicLeaderboardComponent } from './components/public-leaderboard/public-leaderboard.component';
+import { PublicLeaderboardComponent, TeamDetailsDialogComponent } from './components/public-leaderboard/public-leaderboard.component'; 
 import { LoginComponent } from './components/login/login.component';
 import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
 
@@ -33,6 +35,7 @@ import { MinPipe } from './pipes/min.pipe';
   declarations: [
     AppComponent,
     PublicLeaderboardComponent,
+    TeamDetailsDialogComponent, // ← AÑADIDO: Declaramos el componente de la ficha de equipo
     LoginComponent,
     AdminDashboardComponent,
     MinPipe
@@ -56,6 +59,7 @@ import { MinPipe } from './pipes/min.pipe';
     MatChipsModule,
     MatTooltipModule,
     MatDividerModule,
+    MatDialogModule,      // ← AÑADIDO: Lo metemos en los imports de Angular
   ],
   providers: [],
   bootstrap: [AppComponent]
