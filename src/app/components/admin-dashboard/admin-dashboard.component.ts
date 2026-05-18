@@ -176,7 +176,6 @@ export class AdminDashboardComponent implements OnInit {
     const weight  = parseFloat(parseFloat(this.fishForm.value.weight).toFixed(2));
     const awardId = this.fishForm.value.award === 'NONE' ? null : this.fishForm.value.award;
     
-    // MAGIA HÍBRIDA: Si es nuevo pez, coge la hora exacta de ahora. Si es edición, coge la del formulario.
     const catchTime = this.panelMode === 'add' ? this.getCurrentDateTime() : this.fishForm.value.catchTime;
 
     let result;
