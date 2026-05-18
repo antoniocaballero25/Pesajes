@@ -5,6 +5,9 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { TournamentService, Participant } from '../../services/tournament.service';
 import { AuthService } from '../../services/auth.service';
 
+// IMPORTANTE: El compresor mágico
+import imageCompression from 'browser-image-compression';
+
 type PanelMode = 'add' | 'edit';
 
 interface EditTarget {
@@ -47,16 +50,16 @@ export class AdminDashboardComponent implements OnInit {
   pesquilEditValue: number | null = null;
   pesquilLoading = false;
 
-  displayedColumns: string[] = [
-    'pos', 'names', 'pesquil',
-    'p1', 'p2', 'p3', 'p4', 'p5',
-    'total_weight', 'actions'
-  ];
+  displayedColumns: string[] = ['pos', 'names', 'pesquil', 'p1', 'p2', 'p3', 'p4', 'p5', 'total_weight', 'actions'];
 
   activeParticipantId: number | null = null;
   panelMode: PanelMode = 'add';
   editTarget: EditTarget | null = null;
   loading = false;
+
+  // Variables para la foto
+  selectedPhotoFile: File | null = null;
+  photoPreview: string | null = null;
 
   constructor(
     private tournament: TournamentService,
@@ -69,16 +72,8 @@ export class AdminDashboardComponent implements OnInit {
     this.leaderboard$ = this.tournament.leaderboard$;
     this.participants$ = this.tournament.participants$;
 
-    this.participantForm = this.fb.group({
-      names:   ['', [Validators.required, Validators.minLength(3)]],
-      pesquil: [null]
-    });
-
-    this.fishForm = this.fb.group({
-      weight: [null, [Validators.required, Validators.min(0.01), Validators.max(999)]],
-      award:  ['NONE'],
-      catchTime: [this.getCurrentDateTime(), Validators.required] 
-    });
+    this.participantForm = this.fb.group({ names: ['', [Validators.required, Validators.minLength(3)]], pesquil: [null] });
+    this.fishForm = this.fb.group({ weight: [null, [Validators.required, Validators.min(0.01)]], award: ['NONE'], catchTime: [this.getCurrentDateTime(), Validators.required] });
   }
 
   getCurrentDateTime(): string {
@@ -90,118 +85,108 @@ export class AdminDashboardComponent implements OnInit {
   async addParticipant(): Promise<void> {
     if (this.participantForm.get('names')?.invalid) return;
     this.loading = true;
-    const { names, pesquil } = this.participantForm.value;
-    const pesquilVal = pesquil ? parseInt(pesquil, 10) : null;
     try {
-      await this.tournament.addParticipant(names, pesquilVal);
-      this.snack.open(`✅ "${names.toUpperCase()}" añadido.`, 'OK', { duration: 3000 });
+      await this.tournament.addParticipant(this.participantForm.value.names, this.participantForm.value.pesquil ? parseInt(this.participantForm.value.pesquil, 10) : null);
+      this.snack.open(`✅ Añadido.`, 'OK', { duration: 3000 });
       this.participantForm.reset();
-    } catch (e: any) {
-      this.snack.open(`❌ ${e.message}`, 'OK', { duration: 4000 });
-    } finally {
-      this.loading = false;
-    }
+    } catch (e: any) { this.snack.open(`❌ ${e.message}`, 'OK', { duration: 4000 }); } 
+    finally { this.loading = false; }
   }
 
   async removeParticipant(id: number, names: string): Promise<void> {
-    if (!confirm(`¿Eliminar a "${names}"? Esta acción no se puede deshacer.`)) return;
+    if (!confirm(`¿Eliminar a "${names}"?`)) return;
     try {
       await this.tournament.removeParticipant(id);
-      this.snack.open(`"${names}" eliminado.`, 'OK', { duration: 2500 });
       if (this.activeParticipantId === id) this.closePanel();
-    } catch (e: any) {
-      this.snack.open(`❌ ${e.message}`, 'OK', { duration: 3000 });
-    }
+    } catch (e: any) { this.snack.open(`❌ ${e.message}`, 'OK', { duration: 3000 }); }
   }
 
-  startPesquilEdit(participantId: number, currentValue: number | null): void {
-    this.pesquilEditId = participantId;
-    this.pesquilEditValue = currentValue;
-  }
-
-  cancelPesquilEdit(): void {
-    this.pesquilEditId = null;
-    this.pesquilEditValue = null;
-  }
-
-  async savePesquil(participantId: number): Promise<void> {
-    if (!this.pesquilEditValue || this.pesquilEditValue < 1) {
-      this.snack.open('Introduce un número de pesquil válido.', 'OK', { duration: 3000 });
-      return;
-    }
+  startPesquilEdit(id: number, val: number | null): void { this.pesquilEditId = id; this.pesquilEditValue = val; }
+  cancelPesquilEdit(): void { this.pesquilEditId = null; this.pesquilEditValue = null; }
+  async savePesquil(id: number): Promise<void> {
+    if (!this.pesquilEditValue || this.pesquilEditValue < 1) return;
     this.pesquilLoading = true;
     try {
-      await this.tournament.updatePesquil(participantId, this.pesquilEditValue);
-      this.snack.open(`✅ Pesquil actualizado a ${this.pesquilEditValue}.`, 'OK', { duration: 2500 });
+      await this.tournament.updatePesquil(id, this.pesquilEditValue);
       this.cancelPesquilEdit();
-    } catch (e: any) {
-      this.snack.open(`❌ ${e.message}`, 'OK', { duration: 4000 });
-    } finally {
-      this.pesquilLoading = false;
-    }
+    } catch (e: any) { this.snack.open(`❌ ${e.message}`, 'OK', { duration: 4000 }); }
+    finally { this.pesquilLoading = false; }
   }
 
   openAddPanel(participantId: number): void {
-    if (this.activeParticipantId === participantId && this.panelMode === 'add') {
-      this.closePanel();
-      return;
-    }
+    if (this.activeParticipantId === participantId && this.panelMode === 'add') { this.closePanel(); return; }
     this.activeParticipantId = participantId;
     this.panelMode = 'add';
     this.editTarget = null;
-    this.fishForm.reset({ award: 'NONE', catchTime: this.getCurrentDateTime() });
+    this.resetFishForm();
   }
 
   openEditPanel(participantId: number, fishIndex: number, currentWeight: number, currentAward: string = 'NONE', currentCatchTime?: string): void {
     this.activeParticipantId = participantId;
     this.panelMode = 'edit';
     this.editTarget = { participantId, fishIndex, currentWeight, currentAward, currentCatchTime };
-    this.fishForm.patchValue({ 
-      weight: currentWeight, 
-      award: currentAward || 'NONE',
-      catchTime: currentCatchTime || this.getCurrentDateTime() 
-    });
+    this.resetFishForm();
+    this.fishForm.patchValue({ weight: currentWeight, award: currentAward || 'NONE', catchTime: currentCatchTime || this.getCurrentDateTime() });
   }
 
-  closePanel(): void {
-    this.activeParticipantId = null;
-    this.editTarget = null;
+  closePanel(): void { this.activeParticipantId = null; this.editTarget = null; this.resetFishForm(); }
+
+  resetFishForm(): void {
     this.fishForm.reset({ award: 'NONE', catchTime: this.getCurrentDateTime() });
+    this.selectedPhotoFile = null;
+    this.photoPreview = null;
+  }
+
+  // ─── LÓGICA DE COMPRESIÓN DE FOTO ───
+  async onPhotoSelected(event: any): Promise<void> {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // Configuración para que el Starlink ni lo note (baja calidad a máximo 1MB, 1024px)
+    const options = { maxSizeMB: 0.5, maxWidthOrHeight: 1024, useWebWorker: true };
+    try {
+      this.snack.open('Comprimiendo foto...', '', { duration: 1500 });
+      this.selectedPhotoFile = await imageCompression(file, options);
+      // Crear preview visual
+      const reader = new FileReader();
+      reader.onload = (e) => this.photoPreview = e.target?.result as string;
+      reader.readAsDataURL(this.selectedPhotoFile);
+    } catch (error) {
+      this.snack.open('❌ Error al procesar la foto', 'OK', { duration: 3000 });
+    }
   }
 
   async submitFish(): Promise<void> {
     if (this.fishForm.invalid || this.activeParticipantId === null) return;
     this.loading = true;
 
-    const weight  = parseFloat(parseFloat(this.fishForm.value.weight).toFixed(2));
+    const weight = parseFloat(parseFloat(this.fishForm.value.weight).toFixed(2));
     const awardId = this.fishForm.value.award === 'NONE' ? null : this.fishForm.value.award;
-    
     const catchTime = this.panelMode === 'add' ? this.getCurrentDateTime() : this.fishForm.value.catchTime;
 
-    let result;
+    let photoUrl = null;
 
     try {
-      if (this.panelMode === 'add') {
-        result = await (this.tournament as any).addFish(this.activeParticipantId, weight, awardId, catchTime);
-      } else if (this.editTarget) {
-        result = await (this.tournament as any).editFish(
-          this.editTarget.participantId,
-          this.editTarget.fishIndex,
-          weight,
-          awardId,
-          catchTime
-        );
+      // 1. Subir la foto primero si existe
+      if (this.selectedPhotoFile) {
+        this.snack.open('Subiendo datos...', '', { duration: 2000 });
+        photoUrl = await this.tournament.uploadPhoto(this.selectedPhotoFile);
       }
 
-      if (result) {
-        this.snack.open(result.message, 'OK', {
-          duration: 4000,
-          panelClass: result.success ? 'snack-success' : 'snack-warn'
-        });
-        if (result.success) this.closePanel();
+      // 2. Guardar en base de datos
+      let result;
+      if (this.panelMode === 'add') {
+        result = await (this.tournament as any).addFish(this.activeParticipantId, weight, awardId, catchTime, photoUrl);
+      } else if (this.editTarget) {
+        result = await (this.tournament as any).editFish(this.editTarget.participantId, this.editTarget.fishIndex, weight, awardId, catchTime, photoUrl);
+      }
+
+      if (result?.success) {
+        this.snack.open(result.message, 'OK', { duration: 3000, panelClass: 'snack-success' });
+        this.closePanel();
       }
     } catch (e: any) {
-      this.snack.open(`❌ Ha ocurrido un error`, 'OK', { duration: 4000 });
+      this.snack.open(`❌ Error: ${e.message}`, 'OK', { duration: 4000 });
     } finally {
       this.loading = false;
     }
@@ -209,46 +194,15 @@ export class AdminDashboardComponent implements OnInit {
 
   async deleteFish(participantId: number, fishIndex: number, weight: number): Promise<void> {
     if (!confirm(`¿Eliminar el pez de ${weight.toFixed(2)} kg?`)) return;
-    const result = await this.tournament.deleteFish(participantId, fishIndex);
-    this.snack.open(result.message, 'OK', {
-      duration: 3000,
-      panelClass: result.success ? 'snack-success' : 'snack-warn'
-    });
-    if (this.editTarget?.participantId === participantId &&
-        this.editTarget?.fishIndex === fishIndex) {
-      this.closePanel();
-    }
+    await this.tournament.deleteFish(participantId, fishIndex);
+    if (this.editTarget?.participantId === participantId && this.editTarget?.fishIndex === fishIndex) this.closePanel();
   }
 
-  hasFish(fishes: number[], idx: number): boolean {
-    return fishes && fishes[idx] !== undefined;
-  }
-
-  getAwardBg(awardId?: string): string {
-    const award = this.awardsList.find(a => a.id === awardId);
-    return award && award.id !== 'NONE' ? award.bg : 'transparent';
-  }
-
-  getAwardColor(awardId?: string): string {
-    const award = this.awardsList.find(a => a.id === awardId);
-    return award && award.id !== 'NONE' ? award.color : '#2e7d32';
-  }
-
-  getMedal(pos: number): string {
-    if (pos === 0) return '🥇';
-    if (pos === 1) return '🥈';
-    if (pos === 2) return '🥉';
-    return `${pos + 1}º`;
-  }
-
-  getPanelTitle(): string {
-    if (this.panelMode === 'edit' && this.editTarget) return `Corregir Pez ${this.editTarget.fishIndex + 1}`;
-    return 'Añadir captura';
-  }
-
-  getPanelButtonLabel(): string {
-    return this.panelMode === 'edit' ? 'Guardar corrección' : 'Confirmar captura';
-  }
-
+  hasFish(fishes: number[], idx: number): boolean { return fishes && fishes[idx] !== undefined; }
+  getAwardBg(awardId?: string): string { const aw = this.awardsList.find(a => a.id === awardId); return aw && aw.id !== 'NONE' ? aw.bg : 'transparent'; }
+  getAwardColor(awardId?: string): string { const aw = this.awardsList.find(a => a.id === awardId); return aw && aw.id !== 'NONE' ? aw.color : '#2e7d32'; }
+  getMedal(pos: number): string { return pos === 0 ? '🥇' : pos === 1 ? '🥈' : pos === 2 ? '🥉' : `${pos + 1}º`; }
+  getPanelTitle(): string { return this.panelMode === 'edit' ? `Corregir Pez` : 'Añadir captura'; }
+  getPanelButtonLabel(): string { return this.panelMode === 'edit' ? 'Guardar' : 'Registrar'; }
   logout(): void { this.auth.logout(); }
 }

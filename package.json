@@ -2,11 +2,11 @@
   "name": "concurso-pesca",
   "version": "1.0.0",
   "scripts": {
-  "ng": "ng",
-  "start": "ng serve",
-  "build": "node generate-env.js && ng build --configuration production",
-  "watch": "ng build --watch --configuration development"
-},
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "node generate-env.js && ng build --configuration production",
+    "watch": "ng build --watch --configuration development"
+  },
   "private": true,
   "dependencies": {
     "@angular/animations": "^16.2.0",
@@ -20,6 +20,7 @@
     "@angular/platform-browser-dynamic": "^16.2.0",
     "@angular/router": "^16.2.0",
     "@supabase/supabase-js": "^2.39.0",
+    "browser-image-compression": "^2.0.2",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.13.0"
