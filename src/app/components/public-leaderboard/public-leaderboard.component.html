@@ -137,20 +137,36 @@
 
     <mat-card class="legend-card mat-elevation-z2">
       <mat-card-content>
-        <h3>Leyenda de Premios</h3>
-        <ul class="legend-list">
-          <li style="background-color: #e6b8b7; color: #000;">2º PEZ MAYOR DOMINGO MAÑANA</li>
-          <li style="background-color: #95b3d7; color: #000;">2º PEZ MAYOR SABADO MAÑANA</li>
-          <li style="background-color: #ffc000; color: #000;">2º PEZ MAYOR SABADO TARDE</li>
-          <li style="background-color: #ffff00; color: #000;">2º PEZ MAYOR VIERNES TARDE</li>
-          <li style="background-color: #00ff00; color: #000;">BARBO MAYOR</li>
-          <li style="background-color: #ff0000; color: #fff;">CARPA MAYOR</li>
-          <li style="background-color: #205867; color: #fff;">PEZ MAYOR DOMINGO MAÑANA</li>
-          <li style="background-color: #38761d; color: #fff;">PEZ MAYOR SABADO MAÑANA</li>
-          <li style="background-color: #e26b0a; color: #fff;">PEZ MAYOR SABADO TARDE</li>
-          <li style="background-color: #7030a0; color: #fff;">PEZ MAYOR VIERNES TARDE</li>
-          <li style="background-color: #00ffff; color: #000;">PRIMER CUPO</li>
-        </ul>
+        <h3>Premios Especiales</h3>
+        <p class="legend-subtitle">Sigue en directo qué equipo va en cabeza para cada premio.</p>
+        
+        <div class="awards-grid">
+          <ng-container *ngIf="awardsList$ | async as awards">
+            <div class="award-item" 
+                 *ngFor="let award of awards" 
+                 [style.backgroundColor]="award.bg" 
+                 [style.color]="award.color"
+                 [class.has-winner]="award.winner"
+                 (click)="award.winner ? openTeamDetails(award.winner.participantInfo) : null">
+              
+              <div class="award-title">{{ award.label }}</div>
+              
+              <div class="award-winner-info" *ngIf="award.winner">
+                <div class="winner-name">{{ award.winner.names }}</div>
+                <div class="winner-stats">
+                  <span class="winner-pesquil">P - {{ award.winner.pesquil || '?' }}</span>
+                  <span class="winner-weight">{{ award.winner.weight | number:'1.2-2' }} kg</span>
+                </div>
+              </div>
+              
+              <div class="award-empty-info" *ngIf="!award.winner">
+                <span>En juego...</span>
+              </div>
+              
+            </div>
+          </ng-container>
+        </div>
+        
       </mat-card-content>
     </mat-card>
 

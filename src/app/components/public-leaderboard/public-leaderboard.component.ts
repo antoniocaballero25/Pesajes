@@ -1,10 +1,24 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { TournamentService, Participant } from '../../services/tournament.service';
 
-// IMPORTAMOS ANIMACIONES Y DIALOGS
 import { trigger, style, transition, animate } from '@angular/animations';
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
+
+// Ampliamos la interfaz del catálogo para guardar quién es el ganador actual
+export interface AwardCatalogItem {
+  id: string;
+  label: string;
+  bg: string;
+  color: string;
+  winner?: {
+    names: string;
+    pesquil: number | null;
+    weight: number;
+    participantInfo: Participant; // Guardamos el participante entero para abrir su ficha al hacer clic
+  };
+}
 
 @Component({
   selector: 'app-public-leaderboard',
@@ -21,6 +35,9 @@ import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog';
 })
 export class PublicLeaderboardComponent implements OnInit {
   leaderboard$!: Observable<Participant[]>;
+  
+  // Hacemos que la leyenda sea un Observable que se actualiza solo
+  awardsList$!: Observable<AwardCatalogItem[]>;
 
   displayedColumns: string[] = [
     'pos', 'names', 'pesquil',
@@ -28,8 +45,7 @@ export class PublicLeaderboardComponent implements OnInit {
     'totalWeight'
   ];
 
-  awardsList = [
-    { id: 'NONE', label: 'Sin premio', bg: 'transparent', color: '#2e7d32' },
+  baseAwardsList: AwardCatalogItem[] = [
     { id: '2_DOM_MAN', label: '2º PEZ MAYOR DOMINGO MAÑANA', bg: '#e6b8b7', color: '#000' },
     { id: '2_SAB_MAN', label: '2º PEZ MAYOR SABADO MAÑANA', bg: '#95b3d7', color: '#000' },
     { id: '2_SAB_TAR', label: '2º PEZ MAYOR SABADO TARDE', bg: '#ffc000', color: '#000' },
@@ -50,6 +66,37 @@ export class PublicLeaderboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.leaderboard$ = this.tournament.leaderboard$;
+
+    // MAGIA: Repasamos a todos los participantes y buscamos a los ganadores de los premios
+    this.awardsList$ = this.leaderboard$.pipe(
+      map(participants => {
+        // SOLUCIÓN AL ERROR: Añadimos 'as AwardCatalogItem' para que TypeScript sepa qué forma tiene
+        const updatedAwards = this.baseAwardsList.map(award => ({ 
+          ...award, 
+          winner: undefined 
+        } as AwardCatalogItem));
+
+        // Recorremos todos los peces de todos los participantes
+        participants.forEach(p => {
+          if (p.awards && p.fishes) {
+            p.awards.forEach((awardId, idx) => {
+              if (awardId !== 'NONE') {
+                const awardToUpdate = updatedAwards.find(a => a.id === awardId);
+                if (awardToUpdate) {
+                  awardToUpdate.winner = {
+                    names: p.names,
+                    pesquil: p.pesquil,
+                    weight: p.fishes[idx],
+                    participantInfo: p // Guardamos todo para el modal
+                  };
+                }
+              }
+            });
+          }
+        });
+        return updatedAwards;
+      })
+    );
   }
 
   getFish(fishes: number[], idx: number): string {
@@ -64,13 +111,15 @@ export class PublicLeaderboardComponent implements OnInit {
   }
 
   getAwardBg(awardId?: string): string {
-    const award = this.awardsList.find(a => a.id === awardId);
-    return award && award.id !== 'NONE' ? award.bg : 'transparent';
+    if (!awardId || awardId === 'NONE') return 'transparent';
+    const award = this.baseAwardsList.find(a => a.id === awardId);
+    return award ? award.bg : 'transparent';
   }
 
   getAwardColor(awardId?: string): string {
-    const award = this.awardsList.find(a => a.id === awardId);
-    return award && award.id !== 'NONE' ? award.color : '#2e7d32'; 
+    if (!awardId || awardId === 'NONE') return '#2e7d32';
+    const award = this.baseAwardsList.find(a => a.id === awardId);
+    return award ? award.color : '#2e7d32'; 
   }
 
   trackByTeam(index: number, item: any): string {
@@ -78,6 +127,7 @@ export class PublicLeaderboardComponent implements OnInit {
   }
 
   openTeamDetails(team: Participant): void {
+    if (!team) return;
     this.dialog.open(TeamDetailsDialogComponent, {
       width: '500px',
       data: team,
@@ -87,7 +137,7 @@ export class PublicLeaderboardComponent implements OnInit {
 }
 
 // =====================================================================
-// COMPONENTE PARA LA VENTANA EMERGENTE CON LA HORA REAL DE LA BD
+// COMPONENTE PARA LA VENTANA EMERGENTE 
 // =====================================================================
 @Component({
   selector: 'app-team-details-dialog',
@@ -96,10 +146,10 @@ export class PublicLeaderboardComponent implements OnInit {
       <h2 style="margin: 0; font-size: 20px; font-weight: 700; padding-right: 30px;">{{ data.names }}</h2>
       <div style="margin-top: 10px; display: flex; gap: 10px; align-items: center;">
         <span style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 50px; font-size: 13px; font-weight: 600;">
-          Pesquil {{ data.pesquil }}
+          Pesquil {{ data.pesquil || '?' }}
         </span>
         <span style="background: #4caf50; color: white; padding: 4px 12px; border-radius: 50px; font-size: 13px; font-weight: 600;">
-          {{ data.fishes.length }} capturas
+          {{ data.fishes ? data.fishes.length : 0 }} capturas
         </span>
       </div>
     </div>
@@ -124,7 +174,6 @@ export class PublicLeaderboardComponent implements OnInit {
             </div>
             
             <div style="text-align: right; border-left: 1px solid #f0f0f0; padding-left: 15px;">
-              
               <div style="font-size: 11px; color: #444; font-weight: 600; display: flex; align-items: center; justify-content: flex-end; gap: 4px; margin-bottom: 2px;">
                 <mat-icon style="font-size: 14px; width: 14px; height: 14px; color: #1a237e;">calendar_today</mat-icon>
                 {{ data.catchTimes && data.catchTimes[i] ? (data.catchTimes[i] | date:'dd/MM/yyyy') : 'Sin fecha' }}
@@ -134,7 +183,6 @@ export class PublicLeaderboardComponent implements OnInit {
                 <mat-icon style="font-size: 14px; width: 14px; height: 14px; color: #1a237e;">access_time</mat-icon>
                 {{ data.catchTimes && data.catchTimes[i] ? (data.catchTimes[i] | date:'HH:mm') + ' h' : '--:-- h' }}
               </div>
-
             </div>
             
           </div>
