@@ -4,8 +4,8 @@ import { map } from "rxjs/operators";
 import {
   TournamentService,
   Participant,
+  Tournament,
 } from "../../services/tournament.service";
-
 import { trigger, style, transition, animate } from "@angular/animations";
 import { MatDialog, MAT_DIALOG_DATA } from "@angular/material/dialog";
 
@@ -44,7 +44,6 @@ export interface AwardCatalogItem {
 export class PublicLeaderboardComponent implements OnInit, OnDestroy {
   leaderboard$!: Observable<Participant[]>;
   awardsList$!: Observable<AwardCatalogItem[]>;
-
   displayedColumns: string[] = [
     "pos",
     "names",
@@ -57,7 +56,11 @@ export class PublicLeaderboardComponent implements OnInit, OnDestroy {
     "totalWeight",
   ];
 
-  // 3 Fotos del carrusel superior (Patrocinadores)
+  // ─── VARIABLES MULTI-TORNEO (MÓDULO HISTÓRICO) ───
+  tournamentsList: Tournament[] = [];
+  selectedTournamentId!: number; // Tipo number para encajar con el int8 de tu Supabase
+
+  // Configuración del carrusel superior automático
   currentBannerIndex = 0;
   bannerTimer: any;
   bannerImages: string[] = [
@@ -121,13 +124,30 @@ export class PublicLeaderboardComponent implements OnInit, OnDestroy {
   ];
 
   constructor(
-    private tournament: TournamentService,
+    private tournamentService: TournamentService,
     private dialog: MatDialog,
   ) {}
 
-  ngOnInit(): void {
-    this.leaderboard$ = this.tournament.leaderboard$;
-    this.awardsList$ = this.leaderboard$.pipe(
+  async ngOnInit(): Promise<void> {
+    // 1. Enlazamos la tabla pública al flujo reactivo del servicio
+    this.leaderboard$ = this.tournamentService.leaderboard$;
+
+    // 2. Cargamos la lista completa de torneos desde la base de datos
+    this.tournamentsList = await this.tournamentService.getTournaments();
+
+    if (this.tournamentsList.length > 0) {
+      // 3. Buscamos el torneo que esté marcado como 'activo' o, en su defecto, el primero de la lista
+      const defaultTournament =
+        this.tournamentsList.find((t) => t.status === "activo") ||
+        this.tournamentsList[0];
+      this.selectedTournamentId = defaultTournament.id;
+
+      // 4. Forzamos al servicio a cargar los datos de ese torneo inicial
+      await this.tournamentService.selectTournament(this.selectedTournamentId);
+    }
+
+    // 5. Mapeo reactivo de los premios especiales (escucha directo al leaderboard$)
+    this.awardsList$ = this.tournamentService.leaderboard$.pipe(
       map((participants) => {
         const updatedAwards = this.baseAwardsList.map(
           (award) => ({ ...award, winner: undefined }) as AwardCatalogItem,
@@ -161,6 +181,15 @@ export class PublicLeaderboardComponent implements OnInit, OnDestroy {
     this.startBannerRotation();
   }
 
+  /**
+   * Método que se ejecuta cuando el usuario cambia de torneo en el desplegable HTML
+   */
+  async onTournamentChange(tournamentId: number): Promise<void> {
+    this.selectedTournamentId = tournamentId;
+    // Le ordenamos al servicio que cambie de canal de tiempo real y cargue los nuevos pescadores
+    await this.tournamentService.selectTournament(tournamentId);
+  }
+
   ngOnDestroy(): void {
     if (this.bannerTimer) {
       clearInterval(this.bannerTimer);
@@ -191,13 +220,11 @@ export class PublicLeaderboardComponent implements OnInit, OnDestroy {
   }
 
   getAwardBg(awardId?: string): string {
-    if (!awardId || awardId === "NONE") return "transparent";
     const award = this.baseAwardsList.find((a) => a.id === awardId);
     return award ? award.bg : "transparent";
   }
 
   getAwardColor(awardId?: string): string {
-    if (!awardId || awardId === "NONE") return "#2e7d32";
     const award = this.baseAwardsList.find((a) => a.id === awardId);
     return award ? award.color : "#2e7d32";
   }
@@ -231,9 +258,7 @@ export class PublicLeaderboardComponent implements OnInit, OnDestroy {
   }
 }
 
-// =====================================================================
-// COMPONENTE PARA LA VENTANA EMERGENTE (HISTORIAL DE PESAJE CON LA FOTO)
-// =====================================================================
+// ─── COMPONENTE INTERNO DE LA MODAL EMERGENTE ───
 @Component({
   selector: "app-team-details-dialog",
   template: `
@@ -248,17 +273,14 @@ export class PublicLeaderboardComponent implements OnInit, OnDestroy {
       <div style="margin-top: 10px; display: flex; gap: 8px;">
         <span
           style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 4px; font-size: 12px; font-weight: 700;"
+          >Pesquil {{ data.team.pesquil || "?" }}</span
         >
-          Pesquil {{ data.team.pesquil || "?" }}
-        </span>
         <span
           style="background: #4caf50; color: white; padding: 4px 12px; border-radius: 4px; font-size: 12px; font-weight: 700;"
+          >{{ data.team.fishes.length }} capturas</span
         >
-          {{ data.team.fishes.length }} capturas
-        </span>
       </div>
     </div>
-
     <mat-dialog-content style="padding: 0; background: #f4f6f8;">
       <div
         *ngIf="data.isAwardView"
@@ -268,14 +290,12 @@ export class PublicLeaderboardComponent implements OnInit, OnDestroy {
       >
         🏆 {{ data.awardLabel }}
       </div>
-
       <div style="padding: 20px;">
         <h3
           style="color: #666; margin-bottom: 15px; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;"
         >
           {{ data.isAwardView ? "Captura premiada" : "Historial de pesajes" }}
         </h3>
-
         <div style="display: flex; flex-direction: column; gap: 12px;">
           <ng-container *ngFor="let fish of data.team.fishes; let i = index">
             <div
@@ -304,7 +324,6 @@ export class PublicLeaderboardComponent implements OnInit, OnDestroy {
                     </div>
                   </div>
                 </div>
-
                 <div
                   style="text-align: right; border-left: 2px solid #f0f0f0; padding-left: 15px;"
                 >
@@ -336,7 +355,6 @@ export class PublicLeaderboardComponent implements OnInit, OnDestroy {
                   </div>
                 </div>
               </div>
-
               <div
                 *ngIf="data.team.photoUrls && data.team.photoUrls[i]"
                 style="margin-top: 15px; text-align: center; border-top: 1px dashed #ddd; padding-top: 15px;"
@@ -349,9 +367,7 @@ export class PublicLeaderboardComponent implements OnInit, OnDestroy {
             </div>
           </ng-container>
         </div>
-
         <div
-          *ngIf="!data.isAwardView"
           style="margin-top: 20px; padding: 15px; background: #e8f5e9; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border: 2px solid #c8e6c9;"
         >
           <span
@@ -364,7 +380,6 @@ export class PublicLeaderboardComponent implements OnInit, OnDestroy {
         </div>
       </div>
     </mat-dialog-content>
-
     <mat-dialog-actions align="end" style="padding: 15px; background: white;">
       <button
         mat-flat-button

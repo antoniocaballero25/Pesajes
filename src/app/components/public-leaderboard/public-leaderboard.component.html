@@ -18,6 +18,21 @@
         <span class="live-dot"></span> En directo
       </span>
     </div>
+
+    <div class="tournament-selector-container" style="margin-bottom: 25px; max-width: 450px;">
+      <mat-form-field appearance="outline" style="width: 100%;">
+        <mat-label>Edición de la Competición</mat-label>
+        <mat-select [(value)]="selectedTournamentId" (selectionChange)="onTournamentChange($event.value)">
+          <mat-option *matHeaderCellDef style="font-weight: bold; color: #1a237e; font-size: 12px; padding: 10px 16px;">HISTÓRICO DE CONCURSOS</mat-option>
+          <mat-option *ngFor="let tournament of tournamentsList" [value]="tournament.id">
+            {{ tournament.name }}
+            <span *ngIf="tournament.status === 'activo'" style="color: #2e7d32; font-weight: 800; font-size: 11px; margin-left: 8px;">[EN VIVO]</span>
+            <span *ngIf="tournament.status === 'finalizado'" style="color: #b71c1c; font-weight: 800; font-size: 11px; margin-left: 8px;">[OFICIAL]</span>
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
     <p class="section-subtitle">
       Ordenado por peso total capturado · Haz clic en una pareja para ver su ficha
     </p>
@@ -124,7 +139,7 @@
     </mat-card>
 
     <div class="society-banner mat-elevation-z2">
-      <img src="assets/logoOroncarp.png" alt="Sociedad Organizadora">
+      <img src="assets/sociedad.jpg" alt="Sociedad Organizadora">
     </div>
 
   </div>
