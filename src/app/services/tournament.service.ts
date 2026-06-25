@@ -3,7 +3,7 @@ import { BehaviorSubject, Observable } from "rxjs";
 import { map } from "rxjs/operators";
 import { SupabaseService } from "./supabase.service";
 
-// ─── NUEVO: Interfaz del Torneo ───
+// ─── Interfaz del Torneo ───
 export interface Tournament {
   id: number;
   name: string;
@@ -33,7 +33,7 @@ export class TournamentService {
   private participantsSubject = new BehaviorSubject<Participant[]>([]);
   private supabase;
 
-  // ← Novedad: Guardamos qué torneo estamos viendo ahora mismo
+  // ← Guardamos qué torneo estamos viendo ahora mismo en esta plantilla
   private currentTournamentId: number | null = null;
   private realtimeChannel: any;
 
@@ -50,12 +50,20 @@ export class TournamentService {
     private zone: NgZone,
   ) {
     this.supabase = sb.client;
-    // OJO: Ya no llamamos a loadAll() aquí porque primero necesitamos
-    // saber qué torneo seleccionar desde el componente.
+
+    // =========================================================
+    // 🚀 CONFIGURACIÓN MANUAL DE LA PLANTILLA
+    // Cambia este ID por el del torneo que corresponda en Supabase
+    // Ej: 1 = Oroncarp, 2 = La Albufera, etc.
+    // =========================================================
+    const ID_DEL_TORNEO_ACTUAL = 1;
+
+    // Al arrancar la web (jueces o público), se auto-selecciona el torneo
+    this.selectTournament(ID_DEL_TORNEO_ACTUAL);
   }
 
   // ==========================================
-  // ─── NUEVAS FUNCIONES PARA MÚLTIPLES TORNEOS
+  // ─── FUNCIONES DEL HISTÓRICO Y FILTRADO
   // ==========================================
 
   async getTournaments(): Promise<Tournament[]> {
@@ -77,17 +85,13 @@ export class TournamentService {
     this.subscribeRealtime();
   }
 
-  // ==========================================
-  // ─── FUNCIONES MODIFICADAS PARA FILTRAR
-  // ==========================================
-
   private async loadAll(): Promise<void> {
     if (!this.currentTournamentId) return; // Si no hay torneo, no cargamos nada
 
     const { data, error } = await this.supabase
       .from("participants")
       .select("*")
-      .eq("tournament_id", this.currentTournamentId) // ← Filtramos por el torneo seleccionado
+      .eq("tournament_id", this.currentTournamentId) // ← Filtro automático activado
       .order("total_weight", { ascending: false });
 
     if (error) {
@@ -116,11 +120,15 @@ export class TournamentService {
         "postgres_changes",
         { event: "*", schema: "public", table: "participants" },
         () => {
-          if (this.currentTournamentId) this.loadAll(); // Recarga si hay cambios
+          if (this.currentTournamentId) this.loadAll(); // Recarga solo los de este torneo
         },
       )
       .subscribe();
   }
+
+  // ==========================================
+  // ─── FUNCIONES DE JUECES (AÑADIR, EDITAR, BORRAR)
+  // ==========================================
 
   async addParticipant(names: string, pesquil: number | null): Promise<void> {
     if (!this.currentTournamentId)
@@ -133,7 +141,7 @@ export class TournamentService {
     }
 
     const { error } = await this.supabase.from("participants").insert({
-      tournament_id: this.currentTournamentId, // ← Se asigna al torneo en curso
+      tournament_id: this.currentTournamentId, // ← Se asigna automáticamente al torneo correcto
       names: names.toUpperCase().trim(),
       pesquil: pesquil ?? null,
       fishes: [],
@@ -145,10 +153,6 @@ export class TournamentService {
 
     if (error) throw new Error(error.message);
   }
-
-  // ==========================================
-  // ─── FUNCIONES INTACTAS (TU CÓDIGO ORIGINAL)
-  // ==========================================
 
   async updatePesquil(participantId: number, pesquil: number): Promise<void> {
     const current = this.participantsSubject.getValue();
