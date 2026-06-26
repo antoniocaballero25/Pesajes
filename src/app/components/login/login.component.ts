@@ -1,44 +1,37 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
+import { Component } from "@angular/core";
+import { Router } from "@angular/router";
+import { MatSnackBar } from "@angular/material/snack-bar";
+import { AuthService } from "../../services/auth.service";
 
 @Component({
-  selector: 'app-login',
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss']
+  selector: "app-login",
+  templateUrl: "./login.component.html",
+  styleUrls: ["./login.component.scss"],
 })
 export class LoginComponent {
-  loginForm: FormGroup;
-  error = '';
-  hidePassword = true;
+  username = "";
+  password = "";
 
   constructor(
-    private fb: FormBuilder,
     private auth: AuthService,
-    private router: Router
-  ) {
-    this.loginForm = this.fb.group({
-      username: ['', Validators.required],
-      password: ['', Validators.required]
-    });
-  }
+    private router: Router,
+    private snack: MatSnackBar,
+  ) {}
 
   onSubmit(): void {
-    if (this.loginForm.invalid) return;
+    // Llamamos al servicio y comprobamos el rol
+    const rol = this.auth.login(this.username, this.password);
 
-    const { username, password } = this.loginForm.value;
-    const ok = this.auth.login(username, password);
-
-    if (ok) {
-      this.router.navigate(['/admin']);
+    if (rol === "admin") {
+      this.snack.open("¡Bienvenido Administrador!", "OK", { duration: 2000 });
+      this.router.navigate(["/admin-secret-panel"]); // Ruta a TU panel completo
+    } else if (rol === "judge") {
+      this.snack.open("Acceso de Juez concedido", "OK", { duration: 2000 });
+      this.router.navigate(["/juez"]); // Ruta al NUEVO panel limitado
     } else {
-      this.error = 'Usuario o contraseña incorrectos.';
-      this.loginForm.get('password')?.reset();
+      this.snack.open("❌ Usuario o contraseña incorrectos", "Cerrar", {
+        duration: 3000,
+      });
     }
-  }
-
-  goBack(): void {
-    this.router.navigate(['/']);
   }
 }

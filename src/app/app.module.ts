@@ -30,6 +30,7 @@ import { AdminDashboardComponent } from './components/admin-dashboard/admin-dash
 
 // Pipes
 import { MinPipe } from './pipes/min.pipe';
+import { JudgeDashboardComponent } from './judge-dashboard/judge-dashboard.component';
 
 @NgModule({
   declarations: [
@@ -38,7 +39,8 @@ import { MinPipe } from './pipes/min.pipe';
     TeamDetailsDialogComponent, // ← AÑADIDO: Declaramos el componente de la ficha de equipo
     LoginComponent,
     AdminDashboardComponent,
-    MinPipe
+    MinPipe,
+    JudgeDashboardComponent
   ],
   imports: [
     BrowserModule,

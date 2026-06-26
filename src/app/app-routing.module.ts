@@ -4,25 +4,26 @@ import { PublicLeaderboardComponent } from './components/public-leaderboard/publ
 import { LoginComponent } from './components/login/login.component';
 import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
 import { AuthGuard } from './guards/auth.guard';
-
+import { JudgeDashboardComponent } from "./judge-dashboard/judge-dashboard.component";
 const routes: Routes = [
   {
-    path: '',
-    component: PublicLeaderboardComponent
+    path: "",
+    component: PublicLeaderboardComponent,
   },
   {
-    path: 'login',
-    component: LoginComponent
+    path: "login",
+    component: LoginComponent,
   },
   {
-    path: 'admin',
+    path: "admin",
     component: AdminDashboardComponent,
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard],
   },
+  { path: "juez", component: JudgeDashboardComponent },
   {
-    path: '**',
-    redirectTo: ''
-  }
+    path: "**",
+    redirectTo: "",
+  },
 ];
 
 @NgModule({

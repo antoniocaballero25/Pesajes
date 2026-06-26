@@ -1,0 +1,8 @@
+// Reutilizamos la misma maquetación limpia que tienes en tu admin-dashboard
+@import '../admin-dashboard/admin-dashboard.component.scss';
+
+// Pequeño ajuste visual para recalcar que están en modo lectura de pesquiles
+.pesquil-badge {
+  cursor: not-allowed !important;
+  opacity: 0.9;
+}
