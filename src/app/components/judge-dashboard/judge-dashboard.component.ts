@@ -2,8 +2,11 @@ import { Component, OnInit } from "@angular/core";
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Observable } from "rxjs";
 import { MatSnackBar } from "@angular/material/snack-bar";
-import { TournamentService, Participant } from "../services/tournament.service"; // Ajusta la ruta a tu servicio
-import { AuthService } from "../services/auth.service";
+import {
+  TournamentService,
+  Participant,
+} from "../../services/tournament.service"; // Ajusta la ruta a tu servicio
+import { AuthService } from "../../services/auth.service";
 
 import imageCompression from "browser-image-compression";
 

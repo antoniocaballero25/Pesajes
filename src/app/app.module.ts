@@ -1,55 +1,65 @@
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ReactiveFormsModule, FormsModule } from '@angular/forms';  // ← añadido FormsModule
-import { MatSelectModule } from '@angular/material/select';
+import { NgModule } from "@angular/core";
+import { BrowserModule } from "@angular/platform-browser";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+import { ReactiveFormsModule, FormsModule } from "@angular/forms";
 
-// Angular Material
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatDialogModule } from '@angular/material/dialog'; // ← AÑADIDO: Módulo para ventanas emergentes
+// =========================================
+// MÓDULOS DE ANGULAR MATERIAL
+// =========================================
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { MatButtonModule } from "@angular/material/button";
+import { MatIconModule } from "@angular/material/icon";
+import { MatCardModule } from "@angular/material/card";
+import { MatTableModule } from "@angular/material/table";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatInputModule } from "@angular/material/input";
+import { MatSelectModule } from "@angular/material/select";
+import { MatSnackBarModule } from "@angular/material/snack-bar";
+import { MatChipsModule } from "@angular/material/chips";
+import { MatTooltipModule } from "@angular/material/tooltip";
+import { MatDividerModule } from "@angular/material/divider";
+import { MatDialogModule } from "@angular/material/dialog";
 
-// Routing
-import { AppRoutingModule } from './app-routing.module';
+// =========================================
+// RUTAS
+// =========================================
+import { AppRoutingModule } from "./app-routing.module";
 
-// Components
-// ← AÑADIDO: Importamos también TeamDetailsDialogComponent de nuestro archivo
-import { AppComponent } from './app.component';
-import { PublicLeaderboardComponent, TeamDetailsDialogComponent } from './components/public-leaderboard/public-leaderboard.component'; 
-import { LoginComponent } from './components/login/login.component';
-import { AdminDashboardComponent } from './components/admin-dashboard/admin-dashboard.component';
+// =========================================
+// COMPONENTES
+// =========================================
+import { AppComponent } from "./app.component";
+import {
+  PublicLeaderboardComponent,
+  TeamDetailsDialogComponent,
+} from "./components/public-leaderboard/public-leaderboard.component";
+import { LoginComponent } from "./components/login/login.component";
+import { AdminDashboardComponent } from "./components/admin-dashboard/admin-dashboard.component";
+import { JudgeDashboardComponent } from "./components/judge-dashboard/judge-dashboard.component";
 
-// Pipes
-import { MinPipe } from './pipes/min.pipe';
-import { JudgeDashboardComponent } from './judge-dashboard/judge-dashboard.component';
+// =========================================
+// PIPES (FILTROS)
+// =========================================
+import { MinPipe } from "./pipes/min.pipe";
 
 @NgModule({
   declarations: [
     AppComponent,
     PublicLeaderboardComponent,
-    TeamDetailsDialogComponent, // ← AÑADIDO: Declaramos el componente de la ficha de equipo
+    TeamDetailsDialogComponent, // Modal emergente
     LoginComponent,
     AdminDashboardComponent,
+    JudgeDashboardComponent, // Nuevo panel de jueces
     MinPipe,
-    JudgeDashboardComponent
   ],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    MatSelectModule,
-    ReactiveFormsModule,
-    FormsModule,          // ← añadido para [(ngModel)] en el input de pesquil
     AppRoutingModule,
-    // Material
+    ReactiveFormsModule,
+    FormsModule, // Necesario para el [(ngModel)] de los pesquiles
+
+    // Importaciones de Material
     MatToolbarModule,
     MatButtonModule,
     MatIconModule,
@@ -57,13 +67,14 @@ import { JudgeDashboardComponent } from './judge-dashboard/judge-dashboard.compo
     MatTableModule,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule,
     MatSnackBarModule,
     MatChipsModule,
     MatTooltipModule,
     MatDividerModule,
-    MatDialogModule,      // ← AÑADIDO: Lo metemos en los imports de Angular
+    MatDialogModule,
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
 export class AppModule {}
