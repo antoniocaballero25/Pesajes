@@ -5,7 +5,7 @@ import { MatSnackBar } from "@angular/material/snack-bar";
 import {
   TournamentService,
   Participant,
-} from "../../services/tournament.service"; // Ajusta la ruta a tu servicio
+} from "../../services/tournament.service";
 import { AuthService } from "../../services/auth.service";
 
 import imageCompression from "browser-image-compression";
@@ -87,8 +87,6 @@ export class JudgeDashboardComponent implements OnInit {
   awardsList = AWARDS_CATALOG;
 
   fishForm!: FormGroup;
-
-  // Ya no hay columna de acciones de borrado de parejas, solo la de añadir pez
   displayedColumns: string[] = [
     "pos",
     "names",
@@ -256,12 +254,20 @@ export class JudgeDashboardComponent implements OnInit {
         );
       }
 
+      // ─── SOLUCIÓN ERROR ALERTA CUPO MALO ───
       if (result?.success) {
         this.snack.open(result.message, "OK", {
           duration: 3000,
           panelClass: "snack-success",
         });
         this.closePanel();
+      } else if (result && !result.success) {
+        // Captura el mensaje negativo devuelto por el validador del servicio
+        this.snack.open(
+          "⚠️ No se puede agregar captura porque es menor a los peces de esta pareja",
+          "OK",
+          { duration: 5000 },
+        );
       }
     } catch (e: any) {
       this.snack.open(`❌ Error: ${e.message}`, "OK", { duration: 4000 });
@@ -270,18 +276,36 @@ export class JudgeDashboardComponent implements OnInit {
     }
   }
 
+  // ─── SOLUCIÓN VENTANA CONFIRMACIÓN EN MÓVIL ───
   async deleteFish(
+    event: Event,
     participantId: number,
     fishIndex: number,
     weight: number,
   ): Promise<void> {
-    if (!confirm(`¿Eliminar el pez de ${weight.toFixed(2)} kg?`)) return;
-    await this.tournament.deleteFish(participantId, fishIndex);
-    if (
-      this.editTarget?.participantId === participantId &&
-      this.editTarget?.fishIndex === fishIndex
-    )
-      this.closePanel();
+    event.stopPropagation(); // Corta el evento touch para evitar conflictos con el scroll o clics de la tabla
+
+    const confirmar = window.confirm(
+      `¿Eliminar el pez de ${weight.toFixed(2)} kg?`,
+    );
+    if (!confirmar) return;
+
+    try {
+      await this.tournament.deleteFish(participantId, fishIndex);
+      this.snack.open("🗑️ Pez eliminado correctamente.", "OK", {
+        duration: 3000,
+      });
+      if (
+        this.editTarget?.participantId === participantId &&
+        this.editTarget?.fishIndex === fishIndex
+      ) {
+        this.closePanel();
+      }
+    } catch (e: any) {
+      this.snack.open(`❌ Error al eliminar: ${e.message}`, "OK", {
+        duration: 4000,
+      });
+    }
   }
 
   hasFish(fishes: number[], idx: number): boolean {
