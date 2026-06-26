@@ -95,17 +95,25 @@
             <input matInput type="datetime-local" formControlName="catchTime" />
           </mat-form-field>
 
-          <div style="width: 100%; display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
-            <input type="file" accept="image/*" #fileInput (change)="onPhotoSelected($event)"
-              style="display: none;">
+          <div style="width: 100%; display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;">
+            <input type="file" accept="image/*" #fileInput (change)="onPhotoSelected($event)" style="display: none;">
 
-            <button mat-stroked-button type="button" color="accent" (click)="fileInput.click()">
-              <mat-icon>photo_camera</mat-icon> Adjuntar foto
-            </button>
+            <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+              <button mat-stroked-button type="button" color="accent" (click)="fileInput.click()">
+                <mat-icon>photo_camera</mat-icon> 
+                {{ existingPhotoUrl ? 'Cambiar foto' : 'Adjuntar foto' }}
+              </button>
 
-            <img *ngIf="photoPreview" [src]="photoPreview"
-              style="height: 40px; border-radius: 6px; border: 1px solid #ccc;">
-            <span *ngIf="photoPreview" style="color: #4caf50; font-size: 12px; font-weight: bold;">Foto lista ✔️</span>
+              <div *ngIf="existingPhotoUrl && !photoPreview" style="display: flex; align-items: center; gap: 8px;">
+                <img [src]="existingPhotoUrl" style="height: 42px; width: 42px; border-radius: 6px; border: 2px solid #1a237e; object-fit: cover;">
+                <span style="color: #1a237e; font-size: 12px; font-weight: 700; background: rgba(26,35,126,0.08); padding: 4px 10px; border-radius: 4px;">Foto actual en la nube ☁️</span>
+              </div>
+
+              <div *ngIf="photoPreview" style="display: flex; align-items: center; gap: 8px;">
+                <img [src]="photoPreview" style="height: 42px; width: 42px; border-radius: 6px; border: 2px solid #4caf50; object-fit: cover;">
+                <span style="color: #2e7d32; font-size: 12px; font-weight: 700; background: rgba(76,175,80,0.1); padding: 4px 10px; border-radius: 4px;">¡Nueva foto lista! ✔️</span>
+              </div>
+            </div>
           </div>
 
           <div class="fish-actions" style="width: 100%;">
@@ -176,8 +184,7 @@
                     </span>
                     <ng-template #noPesquil>
                       <span class="pesquil-empty">
-                        <mat-icon>add_circle_outline</mat-icon>
-                        Asignar
+                        <mat-icon>add_circle_outline</mat-icon> Asignar
                       </span>
                     </ng-template>
                   </div>
@@ -192,7 +199,7 @@
                 <div *ngIf="hasFish(row.fishes, 0); else empty0" class="fish-cell">
                   <span class="fish-weight clickable" [style.backgroundColor]="getAwardBg(row.awards?.[0])"
                     [style.color]="getAwardColor(row.awards?.[0])"
-                    (click)="openEditPanel(row.id, 0, row.fishes[0], row.awards?.[0], row.catchTimes?.[0])"
+                    (click)="openEditPanel(row.id, 0, row.fishes[0], row.awards?.[0], row.catchTimes?.[0], row.photoUrls?.[0])"
                     matTooltip="Clic para editar">
                     {{ row.fishes[0].toFixed(2) }} kg
                   </span>
@@ -211,7 +218,7 @@
                 <div *ngIf="hasFish(row.fishes, 1); else empty1" class="fish-cell">
                   <span class="fish-weight clickable" [style.backgroundColor]="getAwardBg(row.awards?.[1])"
                     [style.color]="getAwardColor(row.awards?.[1])"
-                    (click)="openEditPanel(row.id, 1, row.fishes[1], row.awards?.[1], row.catchTimes?.[1])"
+                    (click)="openEditPanel(row.id, 1, row.fishes[1], row.awards?.[1], row.catchTimes?.[1], row.photoUrls?.[1])"
                     matTooltip="Clic para editar">
                     {{ row.fishes[1].toFixed(2) }} kg
                   </span>
@@ -230,7 +237,7 @@
                 <div *ngIf="hasFish(row.fishes, 2); else empty2" class="fish-cell">
                   <span class="fish-weight clickable" [style.backgroundColor]="getAwardBg(row.awards?.[2])"
                     [style.color]="getAwardColor(row.awards?.[2])"
-                    (click)="openEditPanel(row.id, 2, row.fishes[2], row.awards?.[2], row.catchTimes?.[2])"
+                    (click)="openEditPanel(row.id, 2, row.fishes[2], row.awards?.[2], row.catchTimes?.[2], row.photoUrls?.[2])"
                     matTooltip="Clic para editar">
                     {{ row.fishes[2].toFixed(2) }} kg
                   </span>
@@ -249,7 +256,7 @@
                 <div *ngIf="hasFish(row.fishes, 3); else empty3" class="fish-cell">
                   <span class="fish-weight clickable" [style.backgroundColor]="getAwardBg(row.awards?.[3])"
                     [style.color]="getAwardColor(row.awards?.[3])"
-                    (click)="openEditPanel(row.id, 3, row.fishes[3], row.awards?.[3], row.catchTimes?.[3])"
+                    (click)="openEditPanel(row.id, 3, row.fishes[3], row.awards?.[3], row.catchTimes?.[3], row.photoUrls?.[3])"
                     matTooltip="Clic para editar">
                     {{ row.fishes[3].toFixed(2) }} kg
                   </span>
@@ -268,7 +275,7 @@
                 <div *ngIf="hasFish(row.fishes, 4); else empty4" class="fish-cell">
                   <span class="fish-weight clickable" [style.backgroundColor]="getAwardBg(row.awards?.[4])"
                     [style.color]="getAwardColor(row.awards?.[4])"
-                    (click)="openEditPanel(row.id, 4, row.fishes[4], row.awards?.[4], row.catchTimes?.[4])"
+                    (click)="openEditPanel(row.id, 4, row.fishes[4], row.awards?.[4], row.catchTimes?.[4], row.photoUrls?.[4])"
                     matTooltip="Clic para editar">
                     {{ row.fishes[4].toFixed(2) }} kg
                   </span>
