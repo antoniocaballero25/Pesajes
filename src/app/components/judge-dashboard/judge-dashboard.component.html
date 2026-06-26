@@ -123,7 +123,7 @@
             <ng-container matColumnDef="pesquil">
               <th mat-header-cell *matHeaderCellDef>Pesquil</th>
               <td mat-cell *matCellDef="let row">
-                <span *ngIf="row.pesquil; else noPesquil" class="pesquil-badge">
+                <span *ngIf="row.pesquil; else noPesquil" class="pesquil-badge" style="cursor: not-allowed; opacity: 0.9;">
                   {{ row.pesquil }}
                 </span>
                 <ng-template #noPesquil>
@@ -138,11 +138,10 @@
                 <div *ngIf="hasFish(row.fishes, 0); else empty0" class="fish-cell">
                   <span class="fish-weight clickable" [style.backgroundColor]="getAwardBg(row.awards?.[0])"
                     [style.color]="getAwardColor(row.awards?.[0])"
-                    (click)="openEditPanel(row.id, 0, row.fishes[0], row.awards?.[0], row.catchTimes?.[0], row.photoUrls?.[0])"
-                    matTooltip="Clic para corregir o ver foto">
+                    (click)="openEditPanel(row.id, 0, row.fishes[0], row.awards?.[0], row.catchTimes?.[0], row.photoUrls?.[0])">
                     {{ row.fishes[0].toFixed(2) }} kg
                   </span>
-                  <button mat-icon-button class="delete-fish-btn" (click)="deleteFish(row.id, 0, row.fishes[0])"
+                  <button mat-icon-button class="delete-fish-btn" (click)="deleteFish($event, row.id, 0, row.fishes[0])"
                     matTooltip="Eliminar pez">
                     <mat-icon>delete</mat-icon>
                   </button>
@@ -157,11 +156,10 @@
                 <div *ngIf="hasFish(row.fishes, 1); else empty1" class="fish-cell">
                   <span class="fish-weight clickable" [style.backgroundColor]="getAwardBg(row.awards?.[1])"
                     [style.color]="getAwardColor(row.awards?.[1])"
-                    (click)="openEditPanel(row.id, 1, row.fishes[1], row.awards?.[1], row.catchTimes?.[1], row.photoUrls?.[1])"
-                    matTooltip="Clic para corregir o ver foto">
+                    (click)="openEditPanel(row.id, 1, row.fishes[1], row.awards?.[1], row.catchTimes?.[1], row.photoUrls?.[1])">
                     {{ row.fishes[1].toFixed(2) }} kg
                   </span>
-                  <button mat-icon-button class="delete-fish-btn" (click)="deleteFish(row.id, 1, row.fishes[1])"
+                  <button mat-icon-button class="delete-fish-btn" (click)="deleteFish($event, row.id, 1, row.fishes[1])"
                     matTooltip="Eliminar pez">
                     <mat-icon>delete</mat-icon>
                   </button>
@@ -176,11 +174,10 @@
                 <div *ngIf="hasFish(row.fishes, 2); else empty2" class="fish-cell">
                   <span class="fish-weight clickable" [style.backgroundColor]="getAwardBg(row.awards?.[2])"
                     [style.color]="getAwardColor(row.awards?.[2])"
-                    (click)="openEditPanel(row.id, 2, row.fishes[2], row.awards?.[2], row.catchTimes?.[2], row.photoUrls?.[2])"
-                    matTooltip="Clic para corregir o ver foto">
+                    (click)="openEditPanel(row.id, 2, row.fishes[2], row.awards?.[2], row.catchTimes?.[2], row.photoUrls?.[2])">
                     {{ row.fishes[2].toFixed(2) }} kg
                   </span>
-                  <button mat-icon-button class="delete-fish-btn" (click)="deleteFish(row.id, 2, row.fishes[2])"
+                  <button mat-icon-button class="delete-fish-btn" (click)="deleteFish($event, row.id, 2, row.fishes[2])"
                     matTooltip="Eliminar pez">
                     <mat-icon>delete</mat-icon>
                   </button>
@@ -195,11 +192,10 @@
                 <div *ngIf="hasFish(row.fishes, 3); else empty3" class="fish-cell">
                   <span class="fish-weight clickable" [style.backgroundColor]="getAwardBg(row.awards?.[3])"
                     [style.color]="getAwardColor(row.awards?.[3])"
-                    (click)="openEditPanel(row.id, 3, row.fishes[3], row.awards?.[3], row.catchTimes?.[3], row.photoUrls?.[3])"
-                    matTooltip="Clic para corregir o ver foto">
+                    (click)="openEditPanel(row.id, 3, row.fishes[3], row.awards?.[3], row.catchTimes?.[3], row.photoUrls?.[3])">
                     {{ row.fishes[3].toFixed(2) }} kg
                   </span>
-                  <button mat-icon-button class="delete-fish-btn" (click)="deleteFish(row.id, 3, row.fishes[3])"
+                  <button mat-icon-button class="delete-fish-btn" (click)="deleteFish($event, row.id, 3, row.fishes[3])"
                     matTooltip="Eliminar pez">
                     <mat-icon>delete</mat-icon>
                   </button>
@@ -214,11 +210,10 @@
                 <div *ngIf="hasFish(row.fishes, 4); else empty4" class="fish-cell">
                   <span class="fish-weight clickable" [style.backgroundColor]="getAwardBg(row.awards?.[4])"
                     [style.color]="getAwardColor(row.awards?.[4])"
-                    (click)="openEditPanel(row.id, 4, row.fishes[4], row.awards?.[4], row.catchTimes?.[4], row.photoUrls?.[4])"
-                    matTooltip="Clic para corregir o ver foto">
+                    (click)="openEditPanel(row.id, 4, row.fishes[4], row.awards?.[4], row.catchTimes?.[4], row.photoUrls?.[4])">
                     {{ row.fishes[4].toFixed(2) }} kg
                   </span>
-                  <button mat-icon-button class="delete-fish-btn" (click)="deleteFish(row.id, 4, row.fishes[4])"
+                  <button mat-icon-button class="delete-fish-btn" (click)="deleteFish($event, row.id, 4, row.fishes[4])"
                     matTooltip="Eliminar pez">
                     <mat-icon>delete</mat-icon>
                   </button>
@@ -239,7 +234,6 @@
               <td mat-cell *matCellDef="let row">
                 <div class="action-buttons">
                   <button mat-mini-fab color="primary" (click)="openAddPanel(row.id)"
-                    [matTooltip]="activeParticipantId === row.id && panelMode === 'add' ? 'Cerrar' : 'Añadir pez'"
                     class="action-btn">
                     <mat-icon>{{ activeParticipantId === row.id && panelMode === 'add' ? 'close' : 'add' }}</mat-icon>
                   </button>

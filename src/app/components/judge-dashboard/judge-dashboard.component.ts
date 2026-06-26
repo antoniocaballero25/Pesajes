@@ -87,6 +87,7 @@ export class JudgeDashboardComponent implements OnInit {
   awardsList = AWARDS_CATALOG;
 
   fishForm!: FormGroup;
+  // Sin la columna de acciones para borrar usuarios
   displayedColumns: string[] = [
     "pos",
     "names",
@@ -262,7 +263,6 @@ export class JudgeDashboardComponent implements OnInit {
         });
         this.closePanel();
       } else if (result && !result.success) {
-        // Captura el mensaje negativo devuelto por el validador del servicio
         this.snack.open(
           "⚠️ No se puede agregar captura porque es menor a los peces de esta pareja",
           "OK",
@@ -283,7 +283,7 @@ export class JudgeDashboardComponent implements OnInit {
     fishIndex: number,
     weight: number,
   ): Promise<void> {
-    event.stopPropagation(); // Corta el evento touch para evitar conflictos con el scroll o clics de la tabla
+    event.stopPropagation(); // Corta el clic pasante del móvil
 
     const confirmar = window.confirm(
       `¿Eliminar el pez de ${weight.toFixed(2)} kg?`,
