@@ -64,24 +64,23 @@ export class PublicLeaderboardComponent implements OnInit, OnDestroy {
   currentBannerIndex = 0;
   bannerTimer: any;
 
-  // AÑADIDAS TODAS TUS IMÁGENES JPG AL CARRUSEL
+  // ─── LISTA DE FOTOS ACTUALIZADA CON LOS NOMBRES EXACTOS DE TU CARPETA ───
   bannerImages: string[] = [
-    "assets/urbasenal.jpg",
+    "assets/anglers.jpg.jpeg",
+    "assets/castaway pva.jpg.jpeg",
+    "assets/enterprise-logo-600x315w.jpg.jpeg",
+    "assets/fox-fb-logo.jpg.jpeg",
+    "assets/LOGO COBISACARP BLANCO.jpg.jpeg",
+    "assets/LOGO DSA.jpg.jpeg",
+    "assets/logo-mainaBaits.jpg.jpeg",
     "assets/logocircularOroncarp.jpeg",
     "assets/logoSolarTackle.jpeg",
-    "assets/Sin título.jpg",
-    "assets/valdecaballero.jpg",
-    "assets/pb-products-300x300.jpg",
-    "assets/logo-mainaBaits.jpg",
     "assets/oroncarpLetras.jpeg",
-    "assets/LOGO-DSA.jpg",
-    "assets/LOGO-COBISACARP.jpg",
-    "assets/TRABUCCO.jpg",
-    "assets/fox-fb-logo.jpg",
-    "assets/enterprise-logo-600x315w.jpg",
-    "assets/castaway pva.jpg",
-    "assets/anglers.jpg",
-    "assets/e1d2c4e8ad22acc01f6386051ec5ea54.jpg",
+    "assets/pb-products-300x300.jpg.jpeg",
+    "assets/Sin título.jpg.jpeg",
+    "assets/TRABUCCO.jpg.jpeg",
+    "assets/urbasenal.jpg.jpeg",
+    "assets/valdecaballero.jpg.jpeg",
   ];
 
   baseAwardsList: AwardCatalogItem[] = [
@@ -97,12 +96,7 @@ export class PublicLeaderboardComponent implements OnInit, OnDestroy {
       bg: "#95b3d7",
       color: "#000",
     },
-    {
-      id: "1_LA_ISLA",
-      label: "1º ZONA LA ISLA",
-      bg: "#ffc000",
-      color: "#000",
-    },
+    { id: "1_LA_ISLA", label: "1º ZONA LA ISLA", bg: "#ffc000", color: "#000" },
     {
       id: "1_COLA_DE_LOS_BARBOS",
       label: "1º COLA DE LOS BARBOS",
