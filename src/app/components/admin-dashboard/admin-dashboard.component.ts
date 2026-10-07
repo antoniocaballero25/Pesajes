@@ -25,55 +25,26 @@ interface EditTarget {
 export const AWARDS_CATALOG = [
   { id: "NONE", label: "Sin premio", bg: "transparent", color: "#2e7d32" },
   {
-    id: "2_DOM_MAN",
-    label: "2º PEZ MAYOR DOMINGO MAÑANA",
+    id: "1_PELOCHE",
+    label: "1º ZONA DE PELOCHE",
     bg: "#e6b8b7",
     color: "#000",
   },
   {
-    id: "2_SAB_MAN",
-    label: "2º PEZ MAYOR SABADO MAÑANA",
+    id: "1_LOS_PUENTES",
+    label: "1º ZONA LOS PUENTES",
     bg: "#95b3d7",
     color: "#000",
   },
+  { id: "1_LA_ISLA", label: "1º ZONA LA ISLA", bg: "#ffc000", color: "#000" },
   {
-    id: "2_SAB_TAR",
-    label: "2º PEZ MAYOR SABADO TARDE",
-    bg: "#ffc000",
-    color: "#000",
-  },
-  {
-    id: "2_VIE_TAR",
-    label: "2º PEZ MAYOR VIERNES TARDE",
+    id: "1_COLA_DE_LOS_BARBOS",
+    label: "1º COLA DE LOS BARBOS",
     bg: "#ffff00",
     color: "#000",
   },
   { id: "BARBO_MAYOR", label: "BARBO MAYOR", bg: "#00ff00", color: "#000" },
   { id: "CARPA_MAYOR", label: "CARPA MAYOR", bg: "#ff0000", color: "#fff" },
-  {
-    id: "1_DOM_MAN",
-    label: "PEZ MAYOR DOMINGO MAÑANA",
-    bg: "#205867",
-    color: "#fff",
-  },
-  {
-    id: "1_SAB_MAN",
-    label: "PEZ MAYOR SABADO MAÑANA",
-    bg: "#38761d",
-    color: "#fff",
-  },
-  {
-    id: "1_SAB_TAR",
-    label: "PEZ MAYOR SABADO TARDE",
-    bg: "#e26b0a",
-    color: "#fff",
-  },
-  {
-    id: "1_VIE_TAR",
-    label: "PEZ MAYOR VIERNES TARDE",
-    bg: "#7030a0",
-    color: "#fff",
-  },
   { id: "PRIMER_CUPO", label: "PRIMER CUPO", bg: "#00ffff", color: "#000" },
 ];
 

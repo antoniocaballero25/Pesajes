@@ -58,68 +58,59 @@ export class PublicLeaderboardComponent implements OnInit, OnDestroy {
 
   // ─── VARIABLES MULTI-TORNEO (MÓDULO HISTÓRICO) ───
   tournamentsList: Tournament[] = [];
-  selectedTournamentId!: number; // Tipo number para encajar con el int8 de tu Supabase
+  selectedTournamentId!: number;
 
   // Configuración del carrusel superior automático
   currentBannerIndex = 0;
   bannerTimer: any;
+
+  // AÑADIDAS TODAS TUS IMÁGENES JPG AL CARRUSEL
   bannerImages: string[] = [
-    "assets/logoFox.png",
-    "assets/logoOroncarp.png",
+    "assets/urbasenal.jpg",
+    "assets/logocircularOroncarp.jpeg",
     "assets/logoSolarTackle.jpeg",
+    "assets/Sin título.jpg",
+    "assets/valdecaballero.jpg",
+    "assets/pb-products-300x300.jpg",
+    "assets/logo-mainaBaits.jpg",
+    "assets/oroncarpLetras.jpeg",
+    "assets/LOGO-DSA.jpg",
+    "assets/LOGO-COBISACARP.jpg",
+    "assets/TRABUCCO.jpg",
+    "assets/fox-fb-logo.jpg",
+    "assets/enterprise-logo-600x315w.jpg",
+    "assets/castaway pva.jpg",
+    "assets/anglers.jpg",
+    "assets/e1d2c4e8ad22acc01f6386051ec5ea54.jpg",
   ];
 
   baseAwardsList: AwardCatalogItem[] = [
     {
-      id: "2_DOM_MAN",
-      label: "2º PEZ MAYOR DOMINGO MAÑANA",
+      id: "1_PELOCHE",
+      label: "1º ZONA DE PELOCHE",
       bg: "#e6b8b7",
       color: "#000",
     },
     {
-      id: "2_SAB_MAN",
-      label: "2º PEZ MAYOR SABADO MAÑANA",
+      id: "1_LOS_PUENTES",
+      label: "1º ZONA LOS PUENTES",
       bg: "#95b3d7",
       color: "#000",
     },
     {
-      id: "2_SAB_TAR",
-      label: "2º PEZ MAYOR SABADO TARDE",
+      id: "1_LA_ISLA",
+      label: "1º ZONA LA ISLA",
       bg: "#ffc000",
       color: "#000",
     },
     {
-      id: "2_VIE_TAR",
-      label: "2º PEZ MAYOR VIERNES TARDE",
+      id: "1_COLA_DE_LOS_BARBOS",
+      label: "1º COLA DE LOS BARBOS",
       bg: "#ffff00",
       color: "#000",
     },
     { id: "BARBO_MAYOR", label: "BARBO MAYOR", bg: "#00ff00", color: "#000" },
     { id: "CARPA_MAYOR", label: "CARPA MAYOR", bg: "#ff0000", color: "#fff" },
-    {
-      id: "1_DOM_MAN",
-      label: "PEZ MAYOR DOMINGO MAÑANA",
-      bg: "#205867",
-      color: "#fff",
-    },
-    {
-      id: "1_SAB_MAN",
-      label: "PEZ MAYOR SABADO MAÑANA",
-      bg: "#38761d",
-      color: "#fff",
-    },
-    {
-      id: "1_SAB_TAR",
-      label: "PEZ MAYOR SABADO TARDE",
-      bg: "#e26b0a",
-      color: "#fff",
-    },
-    {
-      id: "1_VIE_TAR",
-      label: "PEZ MAYOR VIERNES TARDE",
-      bg: "#7030a0",
-      color: "#fff",
-    },
     { id: "PRIMER_CUPO", label: "PRIMER CUPO", bg: "#00ffff", color: "#000" },
   ];
 
@@ -129,24 +120,18 @@ export class PublicLeaderboardComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit(): Promise<void> {
-    // 1. Enlazamos la tabla pública al flujo reactivo del servicio
     this.leaderboard$ = this.tournamentService.leaderboard$;
-
-    // 2. Cargamos la lista completa de torneos desde la base de datos
     this.tournamentsList = await this.tournamentService.getTournaments();
 
     if (this.tournamentsList.length > 0) {
-      // 3. Buscamos el torneo que esté marcado como 'activo' o, en su defecto, el primero de la lista
       const defaultTournament =
         this.tournamentsList.find((t) => t.status === "activo") ||
         this.tournamentsList[0];
       this.selectedTournamentId = defaultTournament.id;
 
-      // 4. Forzamos al servicio a cargar los datos de ese torneo inicial
       await this.tournamentService.selectTournament(this.selectedTournamentId);
     }
 
-    // 5. Mapeo reactivo de los premios especiales (escucha directo al leaderboard$)
     this.awardsList$ = this.tournamentService.leaderboard$.pipe(
       map((participants) => {
         const updatedAwards = this.baseAwardsList.map(
@@ -181,12 +166,8 @@ export class PublicLeaderboardComponent implements OnInit, OnDestroy {
     this.startBannerRotation();
   }
 
-  /**
-   * Método que se ejecuta cuando el usuario cambia de torneo en el desplegable HTML
-   */
   async onTournamentChange(tournamentId: number): Promise<void> {
     this.selectedTournamentId = tournamentId;
-    // Le ordenamos al servicio que cambie de canal de tiempo real y cargue los nuevos pescadores
     await this.tournamentService.selectTournament(tournamentId);
   }
 
