@@ -66,20 +66,20 @@ export class PublicLeaderboardComponent implements OnInit, OnDestroy {
 
   // ─── LISTA DE FOTOS ACTUALIZADA CON LOS NOMBRES EXACTOS DE TU CARPETA ───
   bannerImages: string[] = [
+    "assets/urbasenal.jpg.jpeg",
+    "assets/logocircularOroncarp.jpeg",
     "assets/anglers.jpg.jpeg",
     "assets/castaway pva.jpg.jpeg",
     "assets/enterprise-logo-600x315w.jpg.jpeg",
     "assets/fox-fb-logo.jpg.jpeg",
     "assets/LOGO COBISACARP BLANCO.jpg.jpeg",
     "assets/LOGO DSA.jpg.jpeg",
-    "assets/logo-mainaBaits.jpg.jpeg",
-    "assets/logocircularOroncarp.jpeg",
-    "assets/logoSolarTackle.jpeg",
     "assets/oroncarpLetras.jpeg",
+    "assets/logo-mainaBaits.jpg.jpeg",
+    "assets/logoSolarTackle.jpeg",
     "assets/pb-products-300x300.jpg.jpeg",
     "assets/Sin título.jpg.jpeg",
     "assets/TRABUCCO.jpg.jpeg",
-    "assets/urbasenal.jpg.jpeg",
     "assets/valdecaballero.jpg.jpeg",
   ];
 
