@@ -79,7 +79,6 @@ export class PublicLeaderboardComponent implements OnInit, OnDestroy {
     "assets/logoSolarTackle.jpeg",
     "assets/pb-products-300x300.jpg.jpeg",
     "assets/Sin título.jpg.jpeg",
-    "assets/TRABUCCO.jpg.jpeg",
     "assets/valdecaballero.jpg.jpeg",
   ];
 
@@ -175,7 +174,7 @@ export class PublicLeaderboardComponent implements OnInit, OnDestroy {
     this.bannerTimer = setInterval(() => {
       this.currentBannerIndex =
         (this.currentBannerIndex + 1) % this.bannerImages.length;
-    }, 5000);
+    }, 2000);
   }
 
   getFish(fishes: number[], idx: number): string {
