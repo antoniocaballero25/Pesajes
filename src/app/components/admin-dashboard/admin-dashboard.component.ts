@@ -8,7 +8,6 @@ import {
 } from "../../services/tournament.service";
 import { AuthService } from "../../services/auth.service";
 
-// IMPORTANTE: El compresor mágico
 import imageCompression from "browser-image-compression";
 
 type PanelMode = "add" | "edit";
@@ -19,7 +18,7 @@ interface EditTarget {
   currentWeight: number;
   currentAward?: string;
   currentCatchTime?: string;
-  currentPhotoUrl?: string; // ← Novedad: Guardamos la foto actual en el blanco de edición
+  currentPhotoUrl?: string;
 }
 
 export const AWARDS_CATALOG = [
@@ -83,10 +82,9 @@ export class AdminDashboardComponent implements OnInit {
   editTarget: EditTarget | null = null;
   loading = false;
 
-  // Variables para la foto
   selectedPhotoFile: File | null = null;
   photoPreview: string | null = null;
-  existingPhotoUrl: string | null = null; // ← Novedad: Para recordar si ya había una foto subida
+  existingPhotoUrl: string | null = null;
 
   constructor(
     private tournament: TournamentService,
@@ -180,7 +178,6 @@ export class AdminDashboardComponent implements OnInit {
     this.resetFishForm();
   }
 
-  // Modificado para aceptar el parámetro de la URL de la foto actual
   openEditPanel(
     participantId: number,
     fishIndex: number,
@@ -201,8 +198,7 @@ export class AdminDashboardComponent implements OnInit {
     };
     this.resetFishForm();
 
-    this.existingPhotoUrl = currentPhotoUrl || null; // ← Cargamos la foto si ya existía una
-
+    this.existingPhotoUrl = currentPhotoUrl || null;
     this.fishForm.patchValue({
       weight: currentWeight,
       award: currentAward || "NONE",
@@ -223,10 +219,9 @@ export class AdminDashboardComponent implements OnInit {
     });
     this.selectedPhotoFile = null;
     this.photoPreview = null;
-    this.existingPhotoUrl = null; // ← Limpiamos la foto al cerrar o resetear
+    this.existingPhotoUrl = null;
   }
 
-  // ─── LÓGICA DE COMPRESIÓN DE FOTO ───
   async onPhotoSelected(event: any): Promise<void> {
     const file = event.target.files[0];
     if (!file) return;
@@ -255,24 +250,21 @@ export class AdminDashboardComponent implements OnInit {
     const weight = parseFloat(
       parseFloat(this.fishForm.value.weight).toFixed(2),
     );
-    const awardId =
-      this.fishForm.value.award === "NONE" ? null : this.fishForm.value.award;
+    // AQUÍ ESTÁ LA MAGIA: Pasamos el valor puro siempre, si es 'NONE' borrará el premio en BD
+    const awardId = this.fishForm.value.award;
     const catchTime =
       this.panelMode === "add"
         ? this.getCurrentDateTime()
         : this.fishForm.value.catchTime;
 
-    // Si no se sube una foto nueva, mantenemos la URL de la foto que ya tenía (si existía)
     let photoUrl = this.existingPhotoUrl;
 
     try {
-      // 1. Subir la foto nueva si el juez ha seleccionado una distinta
       if (this.selectedPhotoFile) {
         this.snack.open("Subiendo datos...", "", { duration: 2000 });
         photoUrl = await this.tournament.uploadPhoto(this.selectedPhotoFile);
       }
 
-      // 2. Guardar en base de datos
       let result;
       if (this.panelMode === "add") {
         result = await (this.tournament as any).addFish(
@@ -299,6 +291,12 @@ export class AdminDashboardComponent implements OnInit {
           panelClass: "snack-success",
         });
         this.closePanel();
+      } else if (result && !result.success) {
+        this.snack.open(
+          "⚠️ No se puede agregar captura porque es menor a los peces de esta pareja",
+          "OK",
+          { duration: 5000 },
+        );
       }
     } catch (e: any) {
       this.snack.open(`❌ Error: ${e.message}`, "OK", { duration: 4000 });
@@ -308,17 +306,33 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   async deleteFish(
+    event: Event,
     participantId: number,
     fishIndex: number,
     weight: number,
   ): Promise<void> {
-    if (!confirm(`¿Eliminar el pez de ${weight.toFixed(2)} kg?`)) return;
-    await this.tournament.deleteFish(participantId, fishIndex);
-    if (
-      this.editTarget?.participantId === participantId &&
-      this.editTarget?.fishIndex === fishIndex
-    )
-      this.closePanel();
+    event.stopPropagation();
+    const confirmar = window.confirm(
+      `¿Eliminar el pez de ${weight.toFixed(2)} kg?`,
+    );
+    if (!confirmar) return;
+
+    try {
+      await this.tournament.deleteFish(participantId, fishIndex);
+      this.snack.open("🗑️ Pez eliminado correctamente.", "OK", {
+        duration: 3000,
+      });
+      if (
+        this.editTarget?.participantId === participantId &&
+        this.editTarget?.fishIndex === fishIndex
+      ) {
+        this.closePanel();
+      }
+    } catch (e: any) {
+      this.snack.open(`❌ Error al eliminar: ${e.message}`, "OK", {
+        duration: 4000,
+      });
+    }
   }
 
   hasFish(fishes: number[], idx: number): boolean {

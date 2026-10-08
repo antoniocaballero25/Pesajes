@@ -22,6 +22,7 @@ interface EditTarget {
 }
 
 export const AWARDS_CATALOG = [
+  { id: "NONE", label: "Sin premio", bg: "transparent", color: "#2e7d32" },
   {
     id: "1_PELOCHE",
     label: "1º ZONA DE PELOCHE",
@@ -34,12 +35,7 @@ export const AWARDS_CATALOG = [
     bg: "#95b3d7",
     color: "#000",
   },
-  {
-    id: "1_LA_ISLA",
-    label: "1º ZONA LA ISLA",
-    bg: "#ffc000",
-    color: "#000",
-  },
+  { id: "1_LA_ISLA", label: "1º ZONA LA ISLA", bg: "#ffc000", color: "#000" },
   {
     id: "1_COLA_DE_LOS_BARBOS",
     label: "1º COLA DE LOS BARBOS",
@@ -62,7 +58,6 @@ export class JudgeDashboardComponent implements OnInit {
   awardsList = AWARDS_CATALOG;
 
   fishForm!: FormGroup;
-  // Sin la columna de acciones para borrar usuarios
   displayedColumns: string[] = [
     "pos",
     "names",
@@ -195,8 +190,7 @@ export class JudgeDashboardComponent implements OnInit {
     const weight = parseFloat(
       parseFloat(this.fishForm.value.weight).toFixed(2),
     );
-    const awardId =
-      this.fishForm.value.award === "NONE" ? null : this.fishForm.value.award;
+    const awardId = this.fishForm.value.award; // Pasamos 'NONE' como texto puro para vaciarlo
     const catchTime =
       this.panelMode === "add"
         ? this.getCurrentDateTime()
@@ -230,7 +224,6 @@ export class JudgeDashboardComponent implements OnInit {
         );
       }
 
-      // ─── SOLUCIÓN ERROR ALERTA CUPO MALO ───
       if (result?.success) {
         this.snack.open(result.message, "OK", {
           duration: 3000,
@@ -251,15 +244,13 @@ export class JudgeDashboardComponent implements OnInit {
     }
   }
 
-  // ─── SOLUCIÓN VENTANA CONFIRMACIÓN EN MÓVIL ───
   async deleteFish(
     event: Event,
     participantId: number,
     fishIndex: number,
     weight: number,
   ): Promise<void> {
-    event.stopPropagation(); // Corta el clic pasante del móvil
-
+    event.stopPropagation();
     const confirmar = window.confirm(
       `¿Eliminar el pez de ${weight.toFixed(2)} kg?`,
     );

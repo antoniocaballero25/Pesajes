@@ -4,14 +4,13 @@
     <mat-icon>admin_panel_settings</mat-icon>
     <span class="toolbar-title">Panel de Administrador</span>
     <span class="toolbar-spacer"></span>
-    <span class="admin-badge">Juez</span>
+    <span class="admin-badge">ADMIN</span>
     <button mat-button (click)="logout()" class="logout-btn">
       <mat-icon>logout</mat-icon> Salir
     </button>
   </mat-toolbar>
 
   <div class="content">
-
     <mat-card class="form-card mat-elevation-z2">
       <mat-card-header>
         <mat-icon mat-card-avatar class="card-avatar-icon">person_add</mat-icon>
@@ -20,52 +19,35 @@
       </mat-card-header>
       <mat-card-content>
         <form [formGroup]="participantForm" class="participant-form">
-
           <mat-form-field appearance="outline" class="field-names">
             <mat-label>Nombre de la pareja</mat-label>
             <input matInput formControlName="names" placeholder="Ej: NONO Y VIDAL" (keyup.enter)="addParticipant()" />
             <mat-icon matSuffix>group</mat-icon>
-            <mat-error *ngIf="participantForm.get('names')?.hasError('required')">
-              El nombre es obligatorio
-            </mat-error>
-            <mat-error *ngIf="participantForm.get('names')?.hasError('minlength')">
-              Mínimo 3 caracteres
-            </mat-error>
+            <mat-error *ngIf="participantForm.get('names')?.hasError('required')">El nombre es obligatorio</mat-error>
+            <mat-error *ngIf="participantForm.get('names')?.hasError('minlength')">Mínimo 3 caracteres</mat-error>
           </mat-form-field>
-
           <mat-form-field appearance="outline" class="field-pesquil">
             <mat-label>Pesquil nº <span class="optional-label">(opcional)</span></mat-label>
-            <input matInput type="number" formControlName="pesquil" placeholder="—" min="1"
-              (keyup.enter)="addParticipant()" />
+            <input matInput type="number" formControlName="pesquil" placeholder="—" min="1" (keyup.enter)="addParticipant()" />
             <mat-icon matSuffix>pin</mat-icon>
           </mat-form-field>
-
-          <button mat-raised-button color="primary" type="button" (click)="addParticipant()"
-            [disabled]="participantForm.get('names')?.invalid || loading" class="add-btn">
+          <button mat-raised-button color="primary" type="button" (click)="addParticipant()" [disabled]="participantForm.get('names')?.invalid || loading" class="add-btn">
             <mat-icon>add_circle</mat-icon> Añadir
           </button>
-
         </form>
       </mat-card-content>
     </mat-card>
 
-    <mat-card *ngIf="activeParticipantId !== null" class="fish-panel mat-elevation-z6"
-      [class.edit-mode]="panelMode === 'edit'">
+    <mat-card *ngIf="activeParticipantId !== null" class="fish-panel mat-elevation-z6" [class.edit-mode]="panelMode === 'edit'">
       <mat-card-header>
-        <mat-icon mat-card-avatar class="card-avatar-icon fish-icon">
-          {{ panelMode === 'edit' ? 'edit' : 'set_meal' }}
-        </mat-icon>
+        <mat-icon mat-card-avatar class="card-avatar-icon fish-icon">{{ panelMode === 'edit' ? 'edit' : 'set_meal' }}</mat-icon>
         <mat-card-title>{{ getPanelTitle() }}</mat-card-title>
         <mat-card-subtitle *ngIf="(participants$ | async) as list">
           <ng-container *ngFor="let p of list">
             <ng-container *ngIf="p.id === activeParticipantId">
               {{ p.names }} · {{ p.fishes.length }}/5 peces
-              <span *ngIf="panelMode === 'edit' && editTarget" class="edit-hint">
-                · Peso actual: <strong>{{ editTarget.currentWeight.toFixed(2) }} kg</strong>
-              </span>
-              <span *ngIf="panelMode === 'add'" style="color: #00695c; font-weight: 500;">
-                · Se guardará la hora automáticamente
-              </span>
+              <span *ngIf="panelMode === 'edit' && editTarget" class="edit-hint">· Peso actual: <strong>{{ editTarget.currentWeight.toFixed(2) }} kg</strong></span>
+              <span *ngIf="panelMode === 'add'" style="color: #00695c; font-weight: 500;">· Se guardará la hora automáticamente</span>
             </ng-container>
           </ng-container>
         </mat-card-subtitle>
@@ -73,7 +55,6 @@
 
       <mat-card-content>
         <form [formGroup]="fishForm" class="fish-form">
-
           <mat-form-field appearance="outline" class="fish-weight-field">
             <mat-label>{{ panelMode === 'edit' ? 'Nuevo peso (kg)' : 'Peso del pez (kg)' }}</mat-label>
             <input matInput type="number" formControlName="weight" step="0.01" autofocus />
@@ -90,6 +71,13 @@
             </mat-select>
           </mat-form-field>
 
+          <!-- BOTÓN RÁPIDO PARA QUITAR PREMIO -->
+          <div *ngIf="panelMode === 'edit' && fishForm.get('award')?.value !== 'NONE'" style="display: flex; justify-content: flex-end; margin-top: -15px; margin-bottom: 15px;">
+            <button mat-button color="warn" type="button" (click)="fishForm.patchValue({award: 'NONE'})">
+              <mat-icon>remove_circle_outline</mat-icon> Quitar premio
+            </button>
+          </div>
+
           <mat-form-field appearance="outline" class="fish-time-field" *ngIf="panelMode === 'edit'">
             <mat-label>Fecha de captura</mat-label>
             <input matInput type="datetime-local" formControlName="catchTime" />
@@ -97,18 +85,14 @@
 
           <div style="width: 100%; display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;">
             <input type="file" accept="image/*" #fileInput (change)="onPhotoSelected($event)" style="display: none;">
-
             <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
               <button mat-stroked-button type="button" color="accent" (click)="fileInput.click()">
-                <mat-icon>photo_camera</mat-icon> 
-                {{ existingPhotoUrl ? 'Cambiar foto' : 'Adjuntar foto' }}
+                <mat-icon>photo_camera</mat-icon> {{ existingPhotoUrl ? 'Cambiar foto' : 'Adjuntar foto' }}
               </button>
-
               <div *ngIf="existingPhotoUrl && !photoPreview" style="display: flex; align-items: center; gap: 8px;">
                 <img [src]="existingPhotoUrl" style="height: 42px; width: 42px; border-radius: 6px; border: 2px solid #1a237e; object-fit: cover;">
                 <span style="color: #1a237e; font-size: 12px; font-weight: 700; background: rgba(26,35,126,0.08); padding: 4px 10px; border-radius: 4px;">Foto actual en la nube ☁️</span>
               </div>
-
               <div *ngIf="photoPreview" style="display: flex; align-items: center; gap: 8px;">
                 <img [src]="photoPreview" style="height: 42px; width: 42px; border-radius: 6px; border: 2px solid #4caf50; object-fit: cover;">
                 <span style="color: #2e7d32; font-size: 12px; font-weight: 700; background: rgba(76,175,80,0.1); padding: 4px 10px; border-radius: 4px;">¡Nueva foto lista! ✔️</span>
@@ -118,13 +102,11 @@
 
           <div class="fish-actions" style="width: 100%;">
             <button mat-stroked-button type="button" (click)="closePanel()">Cancelar</button>
-            <button mat-raised-button [color]="panelMode === 'edit' ? 'accent' : 'primary'" type="button"
-              (click)="submitFish()" [disabled]="fishForm.invalid || loading">
+            <button mat-raised-button [color]="panelMode === 'edit' ? 'accent' : 'primary'" type="button" (click)="submitFish()" [disabled]="fishForm.invalid || loading">
               <mat-icon>{{ panelMode === 'edit' ? 'save' : 'check_circle' }}</mat-icon>
               {{ getPanelButtonLabel() }}
             </button>
           </div>
-
         </form>
       </mat-card-content>
     </mat-card>
@@ -133,199 +115,111 @@
       <mat-card-header>
         <mat-icon mat-card-avatar class="card-avatar-icon">leaderboard</mat-icon>
         <mat-card-title>Clasificación y gestión de capturas</mat-card-title>
-        <mat-card-subtitle>
-          Haz clic en el pesquil <mat-icon style="font-size:13px;vertical-align:middle">edit</mat-icon>
-          para asignarlo · Clic en el peso de un pez para corregirlo
-        </mat-card-subtitle>
+        <mat-card-subtitle>Haz clic en el pesquil <mat-icon style="font-size:13px;vertical-align:middle">edit</mat-icon> para asignarlo · Clic en un peso para corregirlo</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
-
         <div class="table-container">
           <table mat-table [dataSource]="(leaderboard$ | async) ?? []" class="admin-table">
-
             <ng-container matColumnDef="pos">
               <th mat-header-cell *matHeaderCellDef>Pos.</th>
-              <td mat-cell *matCellDef="let row; let i = index">
-                <span class="medal">{{ getMedal(i) }}</span>
-              </td>
+              <td mat-cell *matCellDef="let row; let i = index"><span class="medal">{{ getMedal(i) }}</span></td>
             </ng-container>
-
             <ng-container matColumnDef="names">
               <th mat-header-cell *matHeaderCellDef>Participantes</th>
-              <td mat-cell *matCellDef="let row">
-                <strong>{{ row.names }}</strong>
-                <span *ngIf="row.fishes.length === 5" class="full-tag">COMPLETO</span>
-              </td>
+              <td mat-cell *matCellDef="let row"><strong>{{ row.names }}</strong><span *ngIf="row.fishes.length === 5" class="full-tag">COMPLETO</span></td>
             </ng-container>
-
             <ng-container matColumnDef="pesquil">
               <th mat-header-cell *matHeaderCellDef>Pesquil</th>
               <td mat-cell *matCellDef="let row">
-
                 <div *ngIf="pesquilEditId === row.id; else pesquilView" class="pesquil-edit">
-                  <input type="number" class="pesquil-input" [(ngModel)]="pesquilEditValue" min="1" max="999"
-                    (keyup.enter)="savePesquil(row.id)" (keyup.escape)="cancelPesquilEdit()" placeholder="Nº"
-                    autofocus />
-                  <button mat-icon-button class="pesquil-save-btn" (click)="savePesquil(row.id)"
-                    [disabled]="pesquilLoading" matTooltip="Guardar">
-                    <mat-icon>check</mat-icon>
-                  </button>
-                  <button mat-icon-button class="pesquil-cancel-btn" (click)="cancelPesquilEdit()"
-                    matTooltip="Cancelar">
-                    <mat-icon>close</mat-icon>
-                  </button>
+                  <input type="number" class="pesquil-input" [(ngModel)]="pesquilEditValue" min="1" max="999" (keyup.enter)="savePesquil(row.id)" (keyup.escape)="cancelPesquilEdit()" placeholder="Nº" autofocus />
+                  <button mat-icon-button class="pesquil-save-btn" (click)="savePesquil(row.id)" [disabled]="pesquilLoading" matTooltip="Guardar"><mat-icon>check</mat-icon></button>
+                  <button mat-icon-button class="pesquil-cancel-btn" (click)="cancelPesquilEdit()" matTooltip="Cancelar"><mat-icon>close</mat-icon></button>
                 </div>
-
                 <ng-template #pesquilView>
-                  <div class="pesquil-view" (click)="startPesquilEdit(row.id, row.pesquil)"
-                    matTooltip="Clic para asignar/editar pesquil">
-                    <span *ngIf="row.pesquil; else noPesquil" class="pesquil-badge">
-                      {{ row.pesquil }}
-                    </span>
-                    <ng-template #noPesquil>
-                      <span class="pesquil-empty">
-                        <mat-icon>add_circle_outline</mat-icon> Asignar
-                      </span>
-                    </ng-template>
+                  <div class="pesquil-view" (click)="startPesquilEdit(row.id, row.pesquil)" matTooltip="Clic para asignar/editar pesquil">
+                    <span *ngIf="row.pesquil; else noPesquil" class="pesquil-badge">{{ row.pesquil }}</span>
+                    <ng-template #noPesquil><span class="pesquil-empty"><mat-icon>add_circle_outline</mat-icon> Asignar</span></ng-template>
                   </div>
                 </ng-template>
-
               </td>
             </ng-container>
-
             <ng-container matColumnDef="p1">
               <th mat-header-cell *matHeaderCellDef>Pez 1</th>
               <td mat-cell *matCellDef="let row">
                 <div *ngIf="hasFish(row.fishes, 0); else empty0" class="fish-cell">
-                  <span class="fish-weight clickable" [style.backgroundColor]="getAwardBg(row.awards?.[0])"
-                    [style.color]="getAwardColor(row.awards?.[0])"
-                    (click)="openEditPanel(row.id, 0, row.fishes[0], row.awards?.[0], row.catchTimes?.[0], row.photoUrls?.[0])"
-                    matTooltip="Clic para editar">
-                    {{ row.fishes[0].toFixed(2) }} kg
-                  </span>
-                  <button mat-icon-button class="delete-fish-btn" (click)="deleteFish(row.id, 0, row.fishes[0])"
-                    matTooltip="Eliminar este pez">
-                    <mat-icon>delete</mat-icon>
-                  </button>
+                  <span class="fish-weight clickable" [style.backgroundColor]="getAwardBg(row.awards?.[0])" [style.color]="getAwardColor(row.awards?.[0])" (click)="openEditPanel(row.id, 0, row.fishes[0], row.awards?.[0], row.catchTimes?.[0], row.photoUrls?.[0])">{{ row.fishes[0].toFixed(2) }} kg</span>
+                  <button mat-icon-button class="delete-fish-btn" (click)="deleteFish($event, row.id, 0, row.fishes[0])" matTooltip="Eliminar pez"><mat-icon>delete</mat-icon></button>
                 </div>
                 <ng-template #empty0><span class="fish-empty">—</span></ng-template>
               </td>
             </ng-container>
-
             <ng-container matColumnDef="p2">
               <th mat-header-cell *matHeaderCellDef>Pez 2</th>
               <td mat-cell *matCellDef="let row">
                 <div *ngIf="hasFish(row.fishes, 1); else empty1" class="fish-cell">
-                  <span class="fish-weight clickable" [style.backgroundColor]="getAwardBg(row.awards?.[1])"
-                    [style.color]="getAwardColor(row.awards?.[1])"
-                    (click)="openEditPanel(row.id, 1, row.fishes[1], row.awards?.[1], row.catchTimes?.[1], row.photoUrls?.[1])"
-                    matTooltip="Clic para editar">
-                    {{ row.fishes[1].toFixed(2) }} kg
-                  </span>
-                  <button mat-icon-button class="delete-fish-btn" (click)="deleteFish(row.id, 1, row.fishes[1])"
-                    matTooltip="Eliminar este pez">
-                    <mat-icon>delete</mat-icon>
-                  </button>
+                  <span class="fish-weight clickable" [style.backgroundColor]="getAwardBg(row.awards?.[1])" [style.color]="getAwardColor(row.awards?.[1])" (click)="openEditPanel(row.id, 1, row.fishes[1], row.awards?.[1], row.catchTimes?.[1], row.photoUrls?.[1])">{{ row.fishes[1].toFixed(2) }} kg</span>
+                  <button mat-icon-button class="delete-fish-btn" (click)="deleteFish($event, row.id, 1, row.fishes[1])" matTooltip="Eliminar pez"><mat-icon>delete</mat-icon></button>
                 </div>
                 <ng-template #empty1><span class="fish-empty">—</span></ng-template>
               </td>
             </ng-container>
-
             <ng-container matColumnDef="p3">
               <th mat-header-cell *matHeaderCellDef>Pez 3</th>
               <td mat-cell *matCellDef="let row">
                 <div *ngIf="hasFish(row.fishes, 2); else empty2" class="fish-cell">
-                  <span class="fish-weight clickable" [style.backgroundColor]="getAwardBg(row.awards?.[2])"
-                    [style.color]="getAwardColor(row.awards?.[2])"
-                    (click)="openEditPanel(row.id, 2, row.fishes[2], row.awards?.[2], row.catchTimes?.[2], row.photoUrls?.[2])"
-                    matTooltip="Clic para editar">
-                    {{ row.fishes[2].toFixed(2) }} kg
-                  </span>
-                  <button mat-icon-button class="delete-fish-btn" (click)="deleteFish(row.id, 2, row.fishes[2])"
-                    matTooltip="Eliminar este pez">
-                    <mat-icon>delete</mat-icon>
-                  </button>
+                  <span class="fish-weight clickable" [style.backgroundColor]="getAwardBg(row.awards?.[2])" [style.color]="getAwardColor(row.awards?.[2])" (click)="openEditPanel(row.id, 2, row.fishes[2], row.awards?.[2], row.catchTimes?.[2], row.photoUrls?.[2])">{{ row.fishes[2].toFixed(2) }} kg</span>
+                  <button mat-icon-button class="delete-fish-btn" (click)="deleteFish($event, row.id, 2, row.fishes[2])" matTooltip="Eliminar pez"><mat-icon>delete</mat-icon></button>
                 </div>
                 <ng-template #empty2><span class="fish-empty">—</span></ng-template>
               </td>
             </ng-container>
-
             <ng-container matColumnDef="p4">
               <th mat-header-cell *matHeaderCellDef>Pez 4</th>
               <td mat-cell *matCellDef="let row">
                 <div *ngIf="hasFish(row.fishes, 3); else empty3" class="fish-cell">
-                  <span class="fish-weight clickable" [style.backgroundColor]="getAwardBg(row.awards?.[3])"
-                    [style.color]="getAwardColor(row.awards?.[3])"
-                    (click)="openEditPanel(row.id, 3, row.fishes[3], row.awards?.[3], row.catchTimes?.[3], row.photoUrls?.[3])"
-                    matTooltip="Clic para editar">
-                    {{ row.fishes[3].toFixed(2) }} kg
-                  </span>
-                  <button mat-icon-button class="delete-fish-btn" (click)="deleteFish(row.id, 3, row.fishes[3])"
-                    matTooltip="Eliminar este pez">
-                    <mat-icon>delete</mat-icon>
-                  </button>
+                  <span class="fish-weight clickable" [style.backgroundColor]="getAwardBg(row.awards?.[3])" [style.color]="getAwardColor(row.awards?.[3])" (click)="openEditPanel(row.id, 3, row.fishes[3], row.awards?.[3], row.catchTimes?.[3], row.photoUrls?.[3])">{{ row.fishes[3].toFixed(2) }} kg</span>
+                  <button mat-icon-button class="delete-fish-btn" (click)="deleteFish($event, row.id, 3, row.fishes[3])" matTooltip="Eliminar pez"><mat-icon>delete</mat-icon></button>
                 </div>
                 <ng-template #empty3><span class="fish-empty">—</span></ng-template>
               </td>
             </ng-container>
-
             <ng-container matColumnDef="p5">
               <th mat-header-cell *matHeaderCellDef>Pez 5</th>
               <td mat-cell *matCellDef="let row">
                 <div *ngIf="hasFish(row.fishes, 4); else empty4" class="fish-cell">
-                  <span class="fish-weight clickable" [style.backgroundColor]="getAwardBg(row.awards?.[4])"
-                    [style.color]="getAwardColor(row.awards?.[4])"
-                    (click)="openEditPanel(row.id, 4, row.fishes[4], row.awards?.[4], row.catchTimes?.[4], row.photoUrls?.[4])"
-                    matTooltip="Clic para editar">
-                    {{ row.fishes[4].toFixed(2) }} kg
-                  </span>
-                  <button mat-icon-button class="delete-fish-btn" (click)="deleteFish(row.id, 4, row.fishes[4])"
-                    matTooltip="Eliminar este pez">
-                    <mat-icon>delete</mat-icon>
-                  </button>
+                  <span class="fish-weight clickable" [style.backgroundColor]="getAwardBg(row.awards?.[4])" [style.color]="getAwardColor(row.awards?.[4])" (click)="openEditPanel(row.id, 4, row.fishes[4], row.awards?.[4], row.catchTimes?.[4], row.photoUrls?.[4])">{{ row.fishes[4].toFixed(2) }} kg</span>
+                  <button mat-icon-button class="delete-fish-btn" (click)="deleteFish($event, row.id, 4, row.fishes[4])" matTooltip="Eliminar pez"><mat-icon>delete</mat-icon></button>
                 </div>
                 <ng-template #empty4><span class="fish-empty">—</span></ng-template>
               </td>
             </ng-container>
-
             <ng-container matColumnDef="total_weight">
               <th mat-header-cell *matHeaderCellDef>Total</th>
-              <td mat-cell *matCellDef="let row">
-                <span class="total-weight">{{ row.total_weight.toFixed(2) }} kg</span>
-              </td>
+              <td mat-cell *matCellDef="let row"><span class="total-weight">{{ row.total_weight.toFixed(2) }} kg</span></td>
             </ng-container>
-
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef>Acciones</th>
               <td mat-cell *matCellDef="let row">
                 <div class="action-buttons">
-                  <button mat-mini-fab color="primary" (click)="openAddPanel(row.id)"
-                    [matTooltip]="activeParticipantId === row.id && panelMode === 'add' ? 'Cerrar' : 'Añadir pez'"
-                    class="action-btn">
+                  <button mat-mini-fab color="primary" (click)="openAddPanel(row.id)" [matTooltip]="activeParticipantId === row.id && panelMode === 'add' ? 'Cerrar' : 'Añadir pez'" class="action-btn">
                     <mat-icon>{{ activeParticipantId === row.id && panelMode === 'add' ? 'close' : 'add' }}</mat-icon>
                   </button>
-                  <button mat-mini-fab color="warn" (click)="removeParticipant(row.id, row.names)"
-                    matTooltip="Eliminar participante" class="action-btn">
+                  <button mat-mini-fab color="warn" (click)="removeParticipant(row.id, row.names)" matTooltip="Eliminar participante" class="action-btn">
                     <mat-icon>delete</mat-icon>
                   </button>
                 </div>
               </td>
             </ng-container>
-
             <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"
-              [class.active-row]="activeParticipantId === row.id"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;" [class.active-row]="activeParticipantId === row.id"></tr>
           </table>
         </div>
-
         <div *ngIf="((leaderboard$ | async)?.length ?? 0) === 0" class="empty-state">
           <mat-icon class="empty-icon">group_off</mat-icon>
           <p>No hay participantes registrados todavía.</p>
-          <small>Utiliza el formulario de arriba para añadir parejas.</small>
         </div>
-
       </mat-card-content>
     </mat-card>
-
   </div>
 </div>
