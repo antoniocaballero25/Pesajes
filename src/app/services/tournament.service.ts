@@ -39,7 +39,20 @@ export class TournamentService {
 
   readonly leaderboard$: Observable<Participant[]> =
     this.participantsSubject.pipe(
-      map((list) => [...list].sort((a, b) => b.total_weight - a.total_weight)),
+      map((list) =>
+        [...list].sort((a, b) => {
+          // 1. Primero ordenamos por peso total (de mayor a menor)
+          if (b.total_weight !== a.total_weight) {
+            return b.total_weight - a.total_weight;
+          }
+
+          // 2. Si empatan a peso, gana el pesquil más bajo
+          const pesquilA = a.pesquil !== null ? a.pesquil : 9999;
+          const pesquilB = b.pesquil !== null ? b.pesquil : 9999;
+
+          return pesquilA - pesquilB;
+        }),
+      ),
     );
 
   readonly participants$: Observable<Participant[]> =

@@ -37,8 +37,8 @@ export const AWARDS_CATALOG = [
   },
   { id: "1_LA_ISLA", label: "1º ZONA LA ISLA", bg: "#ffc000", color: "#000" },
   {
-    id: "1_COLA_DE_LOS_BARBOS",
-    label: "1º COLA DE LOS BARBOS",
+    id: "1_ZONA_DE_VALDECABALLEROS",
+    label: "1º ZONA DE VALDECABALLEROS",
     bg: "#ffff00",
     color: "#000",
   },
