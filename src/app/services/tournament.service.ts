@@ -47,8 +47,9 @@ export class TournamentService {
           }
 
           // 2. Si empatan a peso, gana el pesquil más bajo
-          const pesquilA = a.pesquil !== null ? a.pesquil : 9999;
-          const pesquilB = b.pesquil !== null ? b.pesquil : 9999;
+          // Comprobamos si tiene pesquil real y lo forzamos a ser un Número. Si no tiene, 9999.
+          const pesquilA = a.pesquil ? Number(a.pesquil) : 9999;
+          const pesquilB = b.pesquil ? Number(b.pesquil) : 9999;
 
           return pesquilA - pesquilB;
         }),
