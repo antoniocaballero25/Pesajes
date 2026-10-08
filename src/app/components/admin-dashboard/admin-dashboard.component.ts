@@ -26,27 +26,26 @@ export const AWARDS_CATALOG = [
   {
     id: "1_PELOCHE",
     label: "1º ZONA DE PELOCHE",
-    bg: "#e6b8b7",
-    color: "#000",
+    bg: "#D35400",
+    color: "#fff",
   },
   {
     id: "1_LOS_PUENTES",
     label: "1º ZONA LOS PUENTES",
-    bg: "#95b3d7",
-    color: "#000",
+    bg: "#2980B9",
+    color: "#fff",
   },
-  { id: "1_LA_ISLA", label: "1º ZONA LA ISLA", bg: "#ffc000", color: "#000" },
+  { id: "1_LA_ISLA", label: "1º ZONA LA ISLA", bg: "#27AE60", color: "#fff" },
   {
-    id: "1_ZONA_DE_VALDECABALLEROS",
+    id: "1_VALDECABALLEROS",
     label: "1º ZONA DE VALDECABALLEROS",
-    bg: "#ffff00",
-    color: "#000",
+    bg: "#8E44AD",
+    color: "#fff",
   },
-  { id: "BARBO_MAYOR", label: "BARBO MAYOR", bg: "#00ff00", color: "#000" },
-  { id: "CARPA_MAYOR", label: "CARPA MAYOR", bg: "#ff0000", color: "#fff" },
-  { id: "PRIMER_CUPO", label: "PRIMER CUPO", bg: "#00ffff", color: "#000" },
+  { id: "BARBO_MAYOR", label: "BARBO MAYOR", bg: "#B7950B", color: "#fff" },
+  { id: "CARPA_MAYOR", label: "CARPA MAYOR", bg: "#C0392B", color: "#fff" },
+  { id: "PRIMER_CUPO", label: "PRIMER CUPO", bg: "#2C3E50", color: "#fff" },
 ];
-
 @Component({
   selector: "app-admin-dashboard",
   templateUrl: "./admin-dashboard.component.html",
