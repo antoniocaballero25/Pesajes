@@ -85,20 +85,20 @@ export class PublicLeaderboardComponent implements OnInit, OnDestroy {
   baseAwardsList: AwardCatalogItem[] = [
     {
       id: "1_PELOCHE",
-      label: "1º ZONA DE PELOCHE",
+      label: "1º ZONA DE PELOCHE (DSA BAITS)",
       bg: "#D35400",
       color: "#fff",
     },
     {
       id: "1_LOS_PUENTES",
-      label: "1º ZONA LOS PUENTES",
+      label: "1º ZONA LOS PUENTES (PARTICLES FOR FISHING)",
       bg: "#2980B9",
       color: "#fff",
     },
-    { id: "1_LA_ISLA", label: "1º ZONA LA ISLA", bg: "#27AE60", color: "#fff" },
+    { id: "1_LA_ISLA", label: "1º ZONA LA ISLA (MAINA BAITS)", bg: "#27AE60", color: "#fff" },
     {
       id: "1_VALDECABALLEROS",
-      label: "1º ZONA DE VALDECABALLEROS",
+      label: "1º ZONA DE VALDECABALLEROS (QUALITY SEEDS)",
       bg: "#8E44AD",
       color: "#fff",
     },
