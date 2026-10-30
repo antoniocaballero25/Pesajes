@@ -56,7 +56,7 @@ export class PublicLeaderboardComponent implements OnInit, OnDestroy {
     "totalWeight",
   ];
 
-  // ─── VARIABLES MULTI-TORNEO (MÓDULO HISTÓRICO) ───
+  // VARIABLES MULTI-TORNEO (MÓDULO HISTÓRICO)
   tournamentsList: Tournament[] = [];
   selectedTournamentId!: number;
 
@@ -64,7 +64,7 @@ export class PublicLeaderboardComponent implements OnInit, OnDestroy {
   currentBannerIndex = 0;
   bannerTimer: any;
 
-  // ─── LISTA DE FOTOS ACTUALIZADA CON LOS NOMBRES EXACTOS DE TU CARPETA ───
+  // LISTA DE FOTOS ACTUALIZADA CON LOS NOMBRES EXACTOS DE TU CARPETA
   bannerImages: string[] = [
     "assets/urbasenal.jpg.jpeg",
     "assets/logocircularOroncarp.jpeg",
@@ -95,7 +95,12 @@ export class PublicLeaderboardComponent implements OnInit, OnDestroy {
       bg: "#2980B9",
       color: "#fff",
     },
-    { id: "1_LA_ISLA", label: "1º ZONA LA ISLA (MAINA BAITS)", bg: "#27AE60", color: "#fff" },
+    {
+      id: "1_LA_ISLA",
+      label: "1º ZONA LA ISLA (MAINA BAITS)",
+      bg: "#27AE60",
+      color: "#fff",
+    },
     {
       id: "1_VALDECABALLEROS",
       label: "1º ZONA DE VALDECABALLEROS (QUALITY SEEDS)",
@@ -106,6 +111,7 @@ export class PublicLeaderboardComponent implements OnInit, OnDestroy {
     { id: "CARPA_MAYOR", label: "CARPA MAYOR", bg: "#C0392B", color: "#fff" },
     { id: "PRIMER_CUPO", label: "PRIMER CUPO", bg: "#2C3E50", color: "#fff" },
   ];
+
   constructor(
     private tournamentService: TournamentService,
     private dialog: MatDialog,
@@ -114,13 +120,11 @@ export class PublicLeaderboardComponent implements OnInit, OnDestroy {
   async ngOnInit(): Promise<void> {
     this.leaderboard$ = this.tournamentService.leaderboard$;
     this.tournamentsList = await this.tournamentService.getTournaments();
-
     if (this.tournamentsList.length > 0) {
       const defaultTournament =
         this.tournamentsList.find((t) => t.status === "activo") ||
         this.tournamentsList[0];
       this.selectedTournamentId = defaultTournament.id;
-
       await this.tournamentService.selectTournament(this.selectedTournamentId);
     }
 
@@ -179,7 +183,7 @@ export class PublicLeaderboardComponent implements OnInit, OnDestroy {
   getFish(fishes: number[], idx: number): string {
     return fishes && fishes[idx] !== undefined
       ? fishes[idx].toFixed(2) + " kg"
-      : "—";
+      : "-";
   }
 
   getMedal(pos: number): string {
@@ -231,7 +235,7 @@ export class PublicLeaderboardComponent implements OnInit, OnDestroy {
   }
 }
 
-// ─── COMPONENTE INTERNO DE LA MODAL EMERGENTE ───
+// COMPONENTE INTERNO DE LA MODAL EMERGENTE
 @Component({
   selector: "app-team-details-dialog",
   template: `
@@ -261,7 +265,7 @@ export class PublicLeaderboardComponent implements OnInit, OnDestroy {
         [style.color]="data.awardColor"
         style="padding: 12px 20px; font-weight: 800; text-align: center; text-transform: uppercase; border-bottom: 2px solid rgba(0,0,0,0.1);"
       >
-        🏆 {{ data.awardLabel }}
+        {{ data.awardLabel }}
       </div>
       <div style="padding: 20px;">
         <h3
