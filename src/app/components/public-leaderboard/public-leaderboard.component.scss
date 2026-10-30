@@ -256,55 +256,45 @@
   font-size: 14px;
 }
 
-/* CARRUSEL SUPERIOR (PATROCINADORES CON FADE Y BLUR) */
+/* CAROUSEL SUPERIOR (PATROCINADORES) */
 .banner-carousel {
-  margin: 24px 0;
-  border-radius: 12px;
-  overflow: hidden;
-  position: relative;
+  margin: 24px 0; 
+  border-radius: 12px; 
+  overflow: hidden; 
+  position: relative; 
   background-color: rgba(255, 255, 255, 0.90);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px); 
   -webkit-backdrop-filter: blur(12px);
-  width: 100%;
+  width: 100%; 
   height: 220px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important; 
   border: 1px solid rgba(255, 255, 255, 0.6);
+
+  /* Bloquea la interacción táctil y el arrastre con el dedo */
   touch-action: none;
+  pointer-events: none;
   user-select: none;
 
   @media (max-width: 768px) { height: 130px; }
 
-  .carousel-fade-container {
-    position: relative;
-    width: 100%;
-    height: 100%;
+  .carousel-track { 
+    display: flex; 
+    width: 100%; 
+    height: 100%; 
   }
 
-  .carousel-slide {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    padding: 15px;
-    box-sizing: border-box;
-    opacity: 0;
-    filter: blur(8px);
-    transition: opacity 0.8s ease-in-out, filter 0.8s ease-in-out;
-    pointer-events: none;
+  .carousel-slide { 
+    min-width: 100%; 
+    height: 100%; 
+    padding: 15px; 
+    box-sizing: border-box; 
 
-    &.active {
-      opacity: 1;
-      filter: blur(0px);
-      z-index: 2;
-    }
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      filter: drop-shadow(0px 2px 8px rgba(0,0,0,0.4));
-    }
+    img { 
+      width: 100%; 
+      height: 100%; 
+      object-fit: contain; 
+      filter: drop-shadow(0px 2px 8px rgba(0,0,0,0.4)); 
+    } 
   }
 }
 
@@ -402,104 +392,31 @@
     font-style: italic;
   }
 }
-/* CAROUSEL SUPERIOR (PATROCINADORES) */
-.banner-carousel {
-  margin: 24px 0; 
-  border-radius: 12px; 
-  overflow: hidden; 
-  position: relative; 
+
+/* BANNER INFERIOR ESTÁTICO (SOCIEDAD) */
+.society-banner {
+  margin: 24px 0;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
   background-color: rgba(255, 255, 255, 0.90);
-  backdrop-filter: blur(12px); 
+  backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  width: 100%; 
+  width: 100%;
   height: 220px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important; 
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
   border: 1px solid rgba(255, 255, 255, 0.6);
+  padding: 15px;
+  box-sizing: border-box;
 
-  /* Bloquea la interacción táctil y el arrastre con el dedo */
-  touch-action: none;
-  pointer-events: none;
-  user-select: none;
-
-  @media (max-width: 768px) { height: 130px; }
-
-  .carousel-track { 
-    display: flex; 
-    width: 100%; 
-    height: 100%; 
-    transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1); 
+  @media (max-width: 768px) {
+    height: 130px;
   }
 
-  .carousel-slide { 
-    min-width: 100%; 
-    height: 100%; 
-    padding: 15px; 
-    box-sizing: border-box; 
-
-    img { 
-      width: 100%; 
-      height: 100%; 
-      object-fit: contain; 
-      filter: drop-shadow(0px 2px 8px rgba(0,0,0,0.4)); 
-    } 
-  }
-}
-/* FOOTER CON ICONO DE LINKEDIN */
-.app-footer {
-  text-align: center;
-  padding: 32px 16px;
-  color: #1a237e;
-  font-size: 13px;
-  margin-top: auto;
-
-  p {
-    margin: 6px 0;
-    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.7);
-  }
-
-  .developer-credit {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-
-    strong {
-      font-weight: 700;
-      color: #1a237e;
-    }
-
-    .linkedin-icon-link {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background-color: rgba(255, 255, 255, 0.85);
-      border: 1px solid rgba(10, 102, 194, 0.3);
-      border-radius: 6px;
-      padding: 4px 6px;
-      transition: all 0.2s ease;
-      cursor: pointer;
-
-      .linkedin-icon {
-        width: 16px;
-        height: 16px;
-        fill: #0a66c2;
-        transition: fill 0.2s ease;
-      }
-
-      &:hover {
-        background-color: #0a66c2;
-        border-color: #0a66c2;
-        box-shadow: 0 2px 8px rgba(10, 102, 194, 0.4);
-        transform: translateY(-1px);
-
-        .linkedin-icon {
-          fill: #ffffff;
-        }
-      }
-
-      &:active {
-        transform: translateY(0);
-      }
-    }
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0px 2px 8px rgba(0,0,0,0.4));
   }
 }

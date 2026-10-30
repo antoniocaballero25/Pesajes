@@ -75,10 +75,11 @@
       </mat-card-content>
     </mat-card>
 
+    <!-- CARRUSEL SUPERIOR (PATROCINADORES CON TRANSICIÓN DINÁMICA) -->
     <div class="banner-carousel mat-elevation-z2">
       <div
         class="carousel-track"
-        [style.transform]="'translateX(' + -currentBannerIndex * 100 + '%)'"
+        [style.transform]="'translateX(' + (-currentBannerIndex * 100) + '%)'"
         [style.transition]="
           currentBannerIndex === 0
             ? 'none'
@@ -90,6 +91,7 @@
         </div>
       </div>
     </div>
+
     <mat-card class="legend-card mat-elevation-z2">
       <mat-card-content>
         <h3>Premios Especiales</h3>
@@ -127,7 +129,6 @@
       <img src="assets/logoOroncarp.png" alt="Sociedad Organizadora">
     </div>
   </div>
-
   <footer class="app-footer">
     <p>
       &copy; 2026 IV OPEN ORONCARP GARCÍA SOLA. Todos los derechos reservados.
