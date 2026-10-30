@@ -420,3 +420,63 @@
     filter: drop-shadow(0px 2px 8px rgba(0,0,0,0.4));
   }
 }
+
+/* FOOTER CON ICONO DE LINKEDIN */
+.app-footer {
+  text-align: center;
+  padding: 32px 16px;
+  color: #1a237e;
+  font-size: 13px;
+  margin-top: auto;
+
+  p {
+    margin: 6px 0;
+    text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.7);
+  }
+
+  .developer-credit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    strong {
+      font-weight: 700;
+      color: #1a237e;
+    }
+
+    .linkedin-icon-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(10, 102, 194, 0.3);
+      border-radius: 6px;
+      padding: 4px 6px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+
+      .linkedin-icon {
+        width: 16px;
+        height: 16px;
+        fill: #0a66c2;
+        transition: fill 0.2s ease;
+      }
+
+      &:hover {
+        background-color: #0a66c2;
+        border-color: #0a66c2;
+        box-shadow: 0 2px 8px rgba(10, 102, 194, 0.4);
+        transform: translateY(-1px);
+
+        .linkedin-icon {
+          fill: #ffffff;
+        }
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+    }
+  }
+}
