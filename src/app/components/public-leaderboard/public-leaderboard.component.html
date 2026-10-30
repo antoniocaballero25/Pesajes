@@ -75,17 +75,21 @@
       </mat-card-content>
     </mat-card>
 
-    <!-- CARRUSEL SUPERIOR (PATROCINADORES CON TRANSICIÓN SUAVE / BORROSA) -->
     <div class="banner-carousel mat-elevation-z2">
-      <div class="carousel-fade-container">
-        <div class="carousel-slide" 
-             *ngFor="let img of bannerImages; let i = index" 
-             [class.active]="i === currentBannerIndex">
-          <img [src]="img" alt="Patrocinadores">
+      <div
+        class="carousel-track"
+        [style.transform]="'translateX(' + -currentBannerIndex * 100 + '%)'"
+        [style.transition]="
+          currentBannerIndex === 0
+            ? 'none'
+            : 'transform 0.6s cubic-bezier(0.25, 1, 0.5, 1)'
+        "
+      >
+        <div class="carousel-slide" *ngFor="let img of bannerImages">
+          <img [src]="img" alt="Patrocinadores" />
         </div>
       </div>
     </div>
-
     <mat-card class="legend-card mat-elevation-z2">
       <mat-card-content>
         <h3>Premios Especiales</h3>
